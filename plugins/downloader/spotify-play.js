@@ -16,9 +16,9 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
         let searchResult = await spotifySong(psn)
         let result = await spotify(searchResult.url)
         caption = '*Hasil Pencarian Spotify*';
-        caption += `\n\n🎶 *Judul:* ${result.title}`;
+        caption += `\n\n🎶 *Judul:* ${searchResult.title}`;
         caption += `\n\n🎶 *Author:* Kanata`;
-        caption += `\n⏳ *Durasi:* ${result.duration}`;
+        caption += `\n⏳ *Durasi:* ${searchResult.duration}`;
         caption += `\n _⏳ Bentar yaa, audio lagi dikirim ⏳_`;
         // let image = spotifyCanvas({
         //     artist: 'Kanata',
@@ -30,7 +30,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
         // })
         await sock.sendMessage(id, { image: { url: result.thumbnail }, caption }, { quoted: m });
 
-        await sock.sendMessage(id, { audio: { url: searchResult.audio }, mimetype: 'audio/mpeg', fileName: result.title }, { quoted: m });
+        await sock.sendMessage(id, { audio: { url: result.audio }, mimetype: 'audio/mpeg', fileName: result.title }, { quoted: m });
 
     } catch (error) {
         await sock.sendMessage(id, { text: '❌ Ups, terjadi kesalahan: ' + error.message });
