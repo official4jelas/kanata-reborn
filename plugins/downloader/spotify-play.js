@@ -1,5 +1,5 @@
 import moment from "moment";
-import { spotifyCanvas, spotifySong } from "../../lib/neoxr/spotify.js";
+import { spotifySong } from "../../lib/neoxr/spotify.js";
 import { spotify } from "../../lib/downloader.js";
 
 export const handler = 'play'
@@ -20,15 +20,15 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
         caption += `\n\n🎶 *Author:* Kanata`;
         caption += `\n⏳ *Durasi:* ${result.duration}`;
         caption += `\n _⏳ Bentar yaa, audio lagi dikirim ⏳_`;
-        let image = spotifyCanvas({
-            artist: 'Kanata',
-            album: 'Hinamizawa',
-            img: result.thumbnail,
-            timeStart: 0,
-            timeEnd: moment.duration(result.duration).asSeconds,
-            title: result.title
-        })
-        await sock.sendMessage(id, { image, caption }, { quoted: m });
+        // let image = spotifyCanvas({
+        //     artist: 'Kanata',
+        //     album: 'Hinamizawa',
+        //     img: result.thumbnail,
+        //     timeStart: 0,
+        //     timeEnd: moment.duration(result.duration).asSeconds,
+        //     title: result.title
+        // })
+        await sock.sendMessage(id, { image: { url: result.thumbnail }, caption }, { quoted: m });
 
         await sock.sendMessage(id, { audio: { url: searchResult.audio }, mimetype: 'audio/mpeg', fileName: result.title }, { quoted: m });
 

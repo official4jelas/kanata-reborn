@@ -83,10 +83,10 @@ class Kanata {
             }
         }
 
-        console.log('itu', this)
+        // console.log('itu', this)
         sock.ev.on("connection.update", async (update) => {
             const { connection, lastDisconnect } = update;
-            console.log('ini', this)
+            // console.log('ini', this)
             if (connection === "connecting") {
                 console.log(chalk.blue("Memulai koneksi soket"));
                 globalThis.io.emit("broadcastMessage", "Memulai koneksi soket");
