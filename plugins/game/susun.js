@@ -1,12 +1,12 @@
-import { tebak } from "../../helper/skizotech.js";
+import { neo } from "../../helper/neoxr.js";
 import { tebakSession } from "../../lib/tebak/index.js";
 export const description = "Mini Game Susun Kata";
 export const handler = "susun"
 const susun = async (id, sock) => {
     try {
-        const response = await tebak('susunkata');
-        const question = response.data.result.pertanyaan;
-        const answer = response.data.result.jawaban;
+        const response = await neo('whatword');
+        const question = `Tipe : ${response.data.data.tipe}\n Pertanyaan : ${response.data.data.pertanyaan}`;
+        const answer = response.data.data.jawaban;
 
         await sock.sendMessage(id, { text: question });
 

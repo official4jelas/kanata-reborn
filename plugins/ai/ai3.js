@@ -8,7 +8,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
         return
     }
     try {
-        console.log(psn)
+        // console.log(psn)
         const response = await globalThis.openai.chat.completions.create({
             model: "llama3.1-70b",
             messages: [
@@ -22,8 +22,10 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
                 }],
         });
         let result = response.choices[0].message.content
-        await sock.sendMessage(id, { text: result });
+        console.log(result)
+        // await sock.sendMessage(id, { text: result });
     } catch (error) {
+        console.log(error);
         await sock.sendMessage(id, { text: `Terjadi kesalahan di sisi server ${error}` });
     }
 };

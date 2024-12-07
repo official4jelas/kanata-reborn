@@ -1,4 +1,4 @@
-import { gptSkizo } from "../../lib/ai.js";
+import { gptNeo4 } from "../../lib/ai.js";
 
 // Metadata deskripsi perintah
 export const description = "🤖 *AI GPT 3.5* disediakan oleh *SkizoTech*";
@@ -13,9 +13,9 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     
     try {
         // Menampilkan respons AI yang diambil dari gptSkizo
-        const response = await gptSkizo(psn);
-        // await sock.sendMessage(id, { text: `🤖 *Jawaban dari AI*:\n\n${response}` });
-        await sock.sendMessage(id, { text: `AI-nya lagi mantenan guys,belum bisa dipake,xD` });
+        const response = await gptNeo4(psn);
+        await sock.sendMessage(id, { text: `🤖 *Jawaban dari AI*:\n\n${response}` });
+        // await sock.sendMessage(id, { text: `AI-nya lagi mantenan guys,belum bisa dipake,xD` });
     } catch (error) {
         // Penanganan kesalahan dengan emoji
         await sock.sendMessage(id, { text: `⚠️ *Terjadi kesalahan*:\n${error.message}` });
