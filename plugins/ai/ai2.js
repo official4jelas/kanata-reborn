@@ -1,5 +1,5 @@
-import { gptSkizo2 } from "../../lib/ai.js";
-export const description = "AI GPT 3.5 Turbo provided by *SkizoTech*";
+import { ryzen } from "../../helper/ryzen.js";
+export const description = "AI Claude 3 Haiku Anthropic provided by *RyzenAI*";
 export const handler = "ai2"
 export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     if (psn === '') {
@@ -8,7 +8,14 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
         })
         return
     }
-    // await sock.sendMessage(id, { text: await gptSkizo2(psn) });
-    await sock.sendMessage(id, { text: `AI-nya lagi mantenan guys,belum bisa dipake,xD` });
+    let text = await ryzen('ai/claude', {
+        params: {
+            text: psn
+        }
+    })
+    await sock.sendMessage(id, {
+        text: text.data.response
+    });
+    // await sock.sendMessage(id, { text: `AI-nya lagi mantenan guys,belum bisa dipake,xD` });
 
 };
