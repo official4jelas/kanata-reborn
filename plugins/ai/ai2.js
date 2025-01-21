@@ -5,6 +5,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     if (psn === '') {
         sock.sendMessage(id, {
             text: "prefix *ai2* Tanyakan sesuatu kepada AI 2\n contoh : ai2 siapa presiden indonesia saat ini"
+
         })
         return
     }
@@ -14,7 +15,8 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
         }
     })
     await sock.sendMessage(id, {
-        text: text.data.response
+        text: text.data.response,
+        ai: true
     });
     // await sock.sendMessage(id, { text: `AI-nya lagi mantenan guys,belum bisa dipake,xD` });
 

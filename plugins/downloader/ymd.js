@@ -9,9 +9,10 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
         return;
     }
     try {
-        await sock.sendMessage(id, { text: '🔄 *Sedang Memproses...* Mohon tunggu sebentar...' });
+        await sock.sendMessage(id, { react: { text: '⏱️', key: m.key } });
         let result = await yutub(psn);
         await sock.sendMessage(id, { audio: { url: result.audio }, mimetype: 'audio/mpeg' }, { quoted: m });
+        sock.sendMessage(id, { react: { text: '✅', key: m.key } })
     } catch (error) {
         await sock.sendMessage(id, { text: '❌ *Terjadi kesalahan:* \n' + error });
     }

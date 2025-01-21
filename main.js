@@ -12,7 +12,7 @@ import { call } from './lib/call.js';
 import OpenAI from "openai";
 
 // globalThis.openai = new OpenAI({ apiKey: globalThis.apiKey.gpt ,baseURL:"https://api.aimlapi.com"});
-globalThis.openai = new OpenAI({ apiKey: globalThis.apiKey.llama, baseURL:'https://api.llama-api.com' });
+globalThis.openai = new OpenAI({ apiKey: globalThis.apiKey.llama, baseURL: 'https://api.llama-api.com' });
 
 
 // Mendefinisikan __dirname untuk ES6
@@ -82,7 +82,7 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
     }
     console.log("cmd:", cmd)
     console.log(args)
-    // console.log(cmd)
+    console.log(m)
     const pluginsDir = path.join(__dirname, 'plugins');
     const plugins = Object.fromEntries(
         await Promise.all(findJsFiles(pluginsDir).map(async file => {
@@ -107,6 +107,7 @@ export async function startBot() {
         sock.ev.on('messages.upsert', async chatUpdate => {
             try {
                 const m = chatUpdate.messages[0];
+                console.log(m)
                 const { remoteJid } = m.key;
                 const sender = m.pushName || remoteJid;
                 const id = remoteJid;
@@ -139,6 +140,12 @@ export async function startBot() {
                     // console.log(cmd.id)
                     await prosesPerintah({ command: `!${cmd.id}`, sock, m, id, sender, noTel });
                 }
+                // console.log("Ini obj nya", m.message?.templateButtonReplyMessage)
+                if (m.message?.templateButtonReplyMessage) {
+                    const cmd = m.message.templateButtonReplyMessage?.selectedId;
+                    // console.log(cmd.id)
+                    await prosesPerintah({ command: `!${cmd}`, sock, m, id, sender, noTel });
+                }
 
                 const chat = await clearMessages(m);
                 if (chat) {
@@ -153,6 +160,8 @@ export async function startBot() {
                 console.log('Error handling message:', error);
             }
         });
+
+
 
         sock.ev.on('group-participants.update', ev => groupParticipants(ev, sock));
         sock.ev.on('groups.update', ev => groupUpdate(ev, sock));

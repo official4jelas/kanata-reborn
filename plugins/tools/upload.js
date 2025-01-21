@@ -1,4 +1,5 @@
 import { uploadGambar2 } from "../../helper/uploader.js";
+import Button from "../../lib/button.js";
 
 export const description = "📤 *Upload Image* 📤";
 export const handler = "upload"

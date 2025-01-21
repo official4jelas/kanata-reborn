@@ -6,6 +6,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     if (psn === '') {
         sock.sendMessage(id, {
             text: "prefix *ai3* Tanyakan sesuatu kepada AI GPT-4o-mini\n contoh : ai3 siapa presiden indonesia saat ini"
+
         })
         return
     }
@@ -16,7 +17,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
         //     messages: [
         //         {
         //             role: "system",
-        //             content: "Kamu adalah KanataBot yang sering marah dan suka toxic, kamu di ciptakan oleh @62895395590009 biasa dipanggil Roy, ingat kamu setiap jawabpertanyaan kamu pakai bahasa yang kasar dan penuh bercandaan, jawab setiap pertanyaan sertakan emoji ingat itu"
+        //             content: "Kamu adalah KanataBot yang sering marah dan suka toxic, kamu di ciptakan oleh @62895395590009 biasa dipanggil Roy, ingat kamu setiap jawab pertanyaan kamu pakai bahasa yang kasar dan penuh bercandaan, jawab setiap pertanyaan sertakan emoji ingat itu"
         //         },
         //         {
         //             role: 'user',

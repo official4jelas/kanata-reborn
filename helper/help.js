@@ -66,12 +66,12 @@ export async function helpMessage() {
 
     let caption = "🌟 Hai, aku Kanata! Senang sekali bisa membantu kamu hari ini. Berikut adalah daftar perintah yang bisa kamu gunakan:\n";
 
-    for (const zakia in plugins) {
+    for (const sonata in plugins) {
         // Nambah header folder
-        caption += `❏┄┅━┅┄〈 〘 ${zakia.toUpperCase()} 〙\n`;
+        caption += `❏┄┅━┅┄〈 〘 ${sonata.toUpperCase()} 〙\n`;
 
         // Nambah file-file ning folder kasebut
-        plugins[zakia].forEach(plugin => {
+        plugins[sonata].forEach(plugin => {
             const command = plugin.handler; 
             caption += `- *${command}* - ${plugin.description}\n`;
         });
