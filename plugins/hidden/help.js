@@ -1,4 +1,4 @@
-import pkg, { prepareWAMessageMedia } from '@seaavey/baileys';
+import pkg, { prepareWAMessageMedia } from '@whiskeysockets/baileys';
 const { generateWAMessageFromContent, proto } = pkg;
 import { helpMessage } from '../../helper/help.js'
 export const handler = ["menu", "help", "h", "hai"]
@@ -25,15 +25,11 @@ export default async ({ sock, id, m, noTel, sender }) => {
     await sock.sendMessage(id, {
         text: caption,
         footer: 'Kanata V2',
-        header: {
-            title: 'Kanata V2',
-            hasMediaAttachment: true, ...(await prepareWAMessageMedia({ image: { url: 'https://telegra.ph/file/8360caca1efd0f697d122.jpg' } }, { upload: sock.waUploadToServer }))
-        },
         buttons: [
             {
-                buttonId: 'profil',
+                buttonId: 'owner',
                 buttonText: {
-                    displayText: 'Profil'
+                    displayText: 'Owner'
                 },
                 type: 4,
                 nativeFlowInfo: {
@@ -43,13 +39,6 @@ export default async ({ sock, id, m, noTel, sender }) => {
                         sections
                     }),
                 },
-            },
-            {
-                buttonId: 'owner',
-                buttonText: {
-                    displayText: 'Owner'
-                },
-                type: 1,
             },
             {
                 buttonId: 'stats',
@@ -63,24 +52,6 @@ export default async ({ sock, id, m, noTel, sender }) => {
         viewOnce: true
     }, {
         quoted: m,
-        contextInfo: {
-            mentionedJid: sender,
-            isForwarded: true,
-            forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363305152329358@newsletter',
-                newsletterName: 'Powered By : Roy',
-                serverMessageId: -1
-            },
-            // businessMessageForwardInfo: { businessOwnerJid: sock.decodeJid(sock.user.id) },
-            forwardingScore: 256,
-            externalAdReply: {
-                title: 'Roidev',
-                thumbnailUrl: 'https://telegra.ph/file/a6f3ef42e42efcf542950.jpg',
-                sourceUrl: 'https://whatsapp.com/channel/0029ValMR7jDp2Q7ldcaNK1L',
-                mediaType: 2,
-            }
-        },
-
     })
 
     return

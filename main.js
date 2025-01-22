@@ -146,6 +146,10 @@ export async function startBot() {
                     // console.log(cmd.id)
                     await prosesPerintah({ command: `!${cmd}`, sock, m, id, sender, noTel });
                 }
+                if (m.message?.buttonsResponseMessage) {
+                    const cmd = m.message.buttonsResponseMessage?.selectedButtonId;
+                    await prosesPerintah({ command: `!${cmd}`, sock, m, id, sender, noTel });
+                }
 
                 const chat = await clearMessages(m);
                 if (chat) {

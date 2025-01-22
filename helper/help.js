@@ -73,12 +73,12 @@ export async function helpMessage() {
         // Nambah file-file ning folder kasebut
         plugins[sonata].forEach(plugin => {
             const command = plugin.handler; 
-            caption += `- *${command}* - ${plugin.description}\n`;
+            caption += `- *${command}*\n`;
         });
 
         caption += '\n';
     }
-    caption += 'Jika ada yang ingin kamu tanyakan atau butuh bantuan lebih lanjut, ketik saja *help* atau langsung tanyakan ke aku! 😊';
+    caption += 'Klik list untuk detail lebih lanjut';
 
     return { caption, plugins };
 }

@@ -1,19 +1,19 @@
-import { threads } from "../../lib/downloader.js";
-export const description = "Downloader Threads Video provided by *Roidev*";
-export const handler = "threads"
-export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
-    if (psn === '') {
-        await sock.sendMessage(id, {
-            text: '📹 *Gunakan format:* \n\n`threads <url video>` '
-        });
-        return;
-    }
-    try {
-        await sock.sendMessage(id, { text: '🔄 *Processing...* Mohon tunggu sebentar...' });
-        let result = await threads(psn);
-        await sock.sendMessage(id, { video: { url: result }, caption: '🎥 *Video berhasil diunduh!*' });
+import { threads } from "../../lib/scraper/threads.js";
 
+export const handler = 'tdd'
+export const description = 'Threads Video Downloader'
+export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
+    if (psn == "") {
+        await sock.sendMessage(id, { text: 'linknya ga ada cuk' })
+        return
+    }
+    sock.sendMessage(id, { react: { text: '⏱️', key: m.key } })
+    try {
+        const { downloadUrl: url, author, title } = await threads(psn)
+        caption = `${title} By : ${author}`
+        await sock.sendMessage(id, { video: { url, caption } })
     } catch (error) {
-        await sock.sendMessage(id, { text: '❌ *Ups,Terjadi kesalahan:* \n' + error.message });
+        await sock.sendMessage(id, { text: 'Cek lagi url nya,Gabisa download ini' })
+
     }
 };
