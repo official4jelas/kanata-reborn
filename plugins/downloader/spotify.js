@@ -1,4 +1,5 @@
 import { spotify } from "../../lib/downloader.js";
+import { spotifySong } from "../../lib/neoxr/spotify.js";
 export const description = "Spotify Downloader provided by *Roidev*";
 export const handler = "spotify"
 export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
@@ -10,8 +11,8 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     }
     try {
         await sock.sendMessage(id, { text: '🔄 *Sedang Memproses...* Mohon tunggu sebentar...' });
-        let result = await spotify(psn);
-        let caption = `🎵 *Judul:* ${result.title}\n🎤 *Artis:* ${result.artist}\n⏳ *Durasi:* ${result.duration}`
+        let { thumbnail, title, audio, author } = await spotifySong(psn);
+        let caption = `🎵 *Judul:* ${result.title}\n🎤 *Artis:* ${result.artist}\n⏳ `
         await sock.sendMessage(id, { image: { url: result.thumbnail }, caption }, { quoted: m })
         await sock.sendMessage(id, { audio: { url: result.audio }, mimetype: 'audio/mpeg' }, { quoted: m });
     } catch (error) {

@@ -1,6 +1,4 @@
-import moment from "moment";
 import { spotifySong } from "../../lib/neoxr/spotify.js";
-import { spotify } from "../../lib/downloader.js";
 
 export const handler = 'play'
 export const description = 'Search Spotify Song/Artist'
@@ -13,12 +11,10 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
 
 
         await sock.sendMessage(id, { text: `🔍 Sedang mencari *${psn}*... di Spotify` });
-        let searchResult = await spotifySong(psn)
-        let result = await spotify(searchResult.url)
+        let { thumbnail, title, author, audio } = await spotifySong(psn)
         caption = '*Hasil Pencarian Spotify*';
-        caption += `\n\n🎶 *Judul:* ${searchResult.title}`;
-        caption += `\n\n🎶 *Author:* ${searchResult.artist}`;
-        caption += `\n⏳ *Durasi:* ${searchResult.duration}`;
+        caption += `\n\n🎶 *Judul:* ${title}`;
+        caption += `\n\n🎶 *Author:* ${author}`;
         caption += `\n _⏳ Bentar yaa, audio lagi dikirim ⏳_`;
         // let image = spotifyCanvas({
         //     artist: 'Kanata',
@@ -28,9 +24,9 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
         //     timeEnd: moment.duration(result.duration).asSeconds,
         //     title: result.title
         // })
-        await sock.sendMessage(id, { image: { url: result.thumbnail }, caption }, { quoted: m });
+        await sock.sendMessage(id, { image: { url: thumbnail }, caption }, { quoted: m });
 
-        await sock.sendMessage(id, { audio: { url: result.audio }, mimetype: 'audio/mpeg', fileName: result.title }, { quoted: m });
+        await sock.sendMessage(id, { audio: { url: audio }, mimetype: 'audio/mpeg', fileName: title }, { quoted: m });
 
     } catch (error) {
         await sock.sendMessage(id, { text: '❌ Ups, terjadi kesalahan: ' + error.message });

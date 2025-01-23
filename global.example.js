@@ -2,7 +2,7 @@
 globalThis.owner = "Roynaldi";
 globalThis.botName = "Sonata Bot";
 globalThis.ownerNumber = ""
-globalThis.botNumber = ""
+globalThis.botNumber = "628157695152"
 globalThis.sessionName = 'kanata-bot'
 
 // fungsi dasar

@@ -1,5 +1,5 @@
 import { uploadGambar2 } from "../../helper/uploader.js";
-import Button from "../../lib/button.js";
+// import Button from "../../lib/button.js";
 
 export const description = "📤 *Upload Image* 📤";
 export const handler = "upload"
@@ -22,7 +22,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
         return;
     }
 
-    // Cek kalo ora ana gambar sing dilampirake
+    // Cek nek ora nana gambar sing dilampirkan
     if (!m.message?.conversation && !m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage) {
         return;
     }

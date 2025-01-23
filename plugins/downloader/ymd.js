@@ -1,4 +1,4 @@
-import { yutub } from "../../lib/downloader.js";
+import { yutubAudio } from "../../lib/downloader.js";
 export const description = "YouTube Audio Downloader provided by *Roidev*";
 export const handler = "ymd"
 export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
@@ -10,8 +10,8 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     }
     try {
         await sock.sendMessage(id, { react: { text: '⏱️', key: m.key } });
-        let result = await yutub(psn);
-        await sock.sendMessage(id, { audio: { url: result.audio }, mimetype: 'audio/mpeg' }, { quoted: m });
+        let {audio} = await yutubAudio(psn);
+        await sock.sendMessage(id, { audio: { url: audio }, mimetype: 'audio/mpeg' }, { quoted: m });
         sock.sendMessage(id, { react: { text: '✅', key: m.key } })
     } catch (error) {
         await sock.sendMessage(id, { text: '❌ *Terjadi kesalahan:* \n' + error });

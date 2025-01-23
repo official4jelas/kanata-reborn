@@ -10,11 +10,11 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     }
     try {
         await sock.sendMessage(id, { text: '🔄 *Processing...* Mohon tunggu sebentar...' });
-        let result = await yutubVideo(psn);
+        let {video} = await yutubVideo(psn);
         // caption = '*🎬 Hasil Video YouTube:*'
         // caption += '\n📛 *Title:* ' + `*${result.title}*`;
         // caption += '\n📺 *Channel:* ' + `*${result.channel}*`;
-        await sock.sendMessage(id, { video: { url: result.video }, caption });
+        await sock.sendMessage(id, { video: { url: video } });
     } catch (error) {
         await sock.sendMessage(id, { text: '❌ *Terjadi kesalahan:* \n' + error.message });
     }
