@@ -81,8 +81,8 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
         cmd = command.toLowerCase().substring(1).split(' ')[0];
         args = command.split(' ').slice(1)
     }
-    // console.log("cmd:", cmd)
-    // console.log(args)
+    console.log("cmd:", cmd)
+    console.log(args)
     // console.log(m)
     const pluginsDir = path.join(__dirname, 'plugins');
     const plugins = Object.fromEntries(
@@ -108,7 +108,7 @@ export async function startBot() {
         sock.ev.on('messages.upsert', async chatUpdate => {
             try {
                 const m = chatUpdate.messages[0];
-                // console.log(m)
+                console.log(m)
                 const { remoteJid } = m.key;
                 const sender = m.pushName || remoteJid;
                 const id = remoteJid;
@@ -152,8 +152,8 @@ export async function startBot() {
                     await prosesPerintah({ command: `!${cmd}`, sock, m, id, sender, noTel });
                 }
                 let botId = sock.user.id.replace(/:\d+/, '')
-                let botMentioned = m.message?.extendedTextMessage?.contextInfo?.mentionedJid.includes(botId)
-                    || m.message?.extendedTextMessage?.contextInfo?.participant.includes(botId)
+                let botMentioned = m.message?.extendedTextMessage?.contextInfo?.participant.includes(botId)
+                    || m.message?.extendedTextMessage?.contextInfo?.mentionedJid.includes(botId)
                 let fullmessage = m.message.conversation || m.message?.extendedTextMessage.text
                     || m.message?.extendedTextMessage?.contextInfo
                 // auto AI mention

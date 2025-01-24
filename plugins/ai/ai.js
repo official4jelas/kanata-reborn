@@ -2,7 +2,7 @@ import { gpt4Hika } from "../../lib/ai.js";
 
 // Metadata deskripsi perintah
 export const description = "🤖 *AI GPT 3.5* disediakan oleh *SkizoTech*";
-export const handler = "aii"
+export const handler = "ai"
 export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     if (psn.trim() === '') {
         sock.sendMessage(id, {

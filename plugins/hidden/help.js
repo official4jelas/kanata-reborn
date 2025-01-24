@@ -1,4 +1,5 @@
-import pkg, { prepareWAMessageMedia } from '@whiskeysockets/baileys';
+import pkg, { prepareWAMessageMedia } from '@seaavey/baileys';
+import fs from 'fs'
 const { generateWAMessageFromContent, proto } = pkg;
 import { helpMessage } from '../../helper/help.js'
 export const handler = ["menu", "help", "h", "hai"]
@@ -24,12 +25,11 @@ export default async ({ sock, id, m, noTel, sender }) => {
     }
     await sock.sendMessage(id, {
         text: caption,
-        footer: 'Kanata V2',
         buttons: [
             {
-                buttonId: 'owner',
+                buttonId: 'ping',
                 buttonText: {
-                    displayText: 'Owner'
+                    displayText: 'Test Ping'
                 },
                 type: 4,
                 nativeFlowInfo: {
@@ -41,9 +41,9 @@ export default async ({ sock, id, m, noTel, sender }) => {
                 },
             },
             {
-                buttonId: 'stats',
+                buttonId: 'owner',
                 buttonText: {
-                    displayText: 'Test Ping'
+                    displayText: 'Owner Contact'
                 },
                 type: 1,
             }
@@ -51,7 +51,19 @@ export default async ({ sock, id, m, noTel, sender }) => {
         headerType: 1,
         viewOnce: true
     }, {
-        quoted: m,
+        quoted: {
+            key: {
+                remoteJid: 'status@broadcast',
+                participant: '0@s.whatsapp.net'
+            },
+            message: {
+                newsletterAdminInviteMessage: {
+                    newsletterJid: '120363293401077915@newsletter',
+                    newsletterName: '',
+                    caption: 'Kanata'
+                }
+            }
+        }
     })
 
     return

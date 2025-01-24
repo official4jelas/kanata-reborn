@@ -90,10 +90,11 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
                 }
             }
         }, { quoted: m });
-
+        sock.sendMessage(id, { react: { text: '⏱️', key: m.key } })
         await sock.relayMessage(id, msg.message, {
             messageId: msg.key.id
         });
+        await sock.sendMessage(id, { react: { text: '✅', key: m.key } })
     } else {
         sock.sendMessage(id, { react: { text: '⏱️', key: m.key } })
         const hasilPencarian = await ytsearch(psn);
@@ -106,7 +107,8 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
             }),
             header: proto.Message.InteractiveMessage.Header.fromObject({
                 title: `*${result.title}*`,
-                hasMediaAttachment: true, ...(await prepareWAMessageMedia({ image: { url: result.image } }, { upload: sock.waUploadToServer }))
+                hasMediaAttachment: true,
+                ...(await prepareWAMessageMedia({ image: { url: result.image } }, { upload: sock.waUploadToServer }))
             }),
             nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
                 buttons: [

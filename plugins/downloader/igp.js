@@ -4,7 +4,7 @@ export const handler = "igp"
 export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     if (psn === '') {
         await sock.sendMessage(id, { 
-            text: '🔍 *Gunakan format:* \n\n`idp <url>`\n\nContoh:\n`idp https://www.instagram.com/p/CMd5Hr5Dx-7/?igshid=1jg9b5j7qk7t7`' 
+            text: '🔍 *Gunakan format:* \n\n`idp <url>`\n\nContoh:\n`igp https://www.instagram.com/p/CMd5Hr5Dx-7/?igshid=1jg9b5j7qk7t7`' 
         });
         return;
     }
