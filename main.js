@@ -11,10 +11,8 @@ import readline from 'readline';
 import { call } from './lib/call.js';
 import OpenAI from "openai";
 import { gpt4Hika } from './lib/ai.js';
-import { downloadMediaMessage } from '@whiskeysockets/baileys';
+import { downloadMediaMessage } from '@seaavey/baileys';
 
-// globalThis.openai = new OpenAI({ apiKey: globalThis.apiKey.gpt ,baseURL:"https://api.aimlapi.com"});
-globalThis.openai = new OpenAI({ apiKey: globalThis.apiKey.llama, baseURL: 'https://api.llama-api.com' });
 
 
 // Mendefinisikan __dirname untuk ES6

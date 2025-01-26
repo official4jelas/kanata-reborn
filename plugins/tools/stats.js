@@ -1,4 +1,4 @@
-import pkg from '@whiskeysockets/baileys';
+import pkg from '@seaavey/baileys';
 import { getBuffer } from '../../helper/mediaMsg.js';
 const { proto, generateWAMessageFromContent } = pkg
 import os from 'os';

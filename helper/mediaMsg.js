@@ -1,4 +1,4 @@
-import { downloadContentFromMessage } from "@whiskeysockets/baileys"
+import { downloadContentFromMessage } from "@seaavey/baileys"
 
 export const getMedia = async (msg) => {
     try {

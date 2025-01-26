@@ -15,7 +15,6 @@ import readline from 'readline';
 import { call } from './lib/call.js';
 import OpenAI from "openai";
 
-globalThis.openai = new OpenAI({ apiKey: globalThis.apiKey.llama, baseURL: 'https://api.llama-api.com' });
 
 const app = express()
 const server = createServer(app)

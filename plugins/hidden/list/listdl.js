@@ -1,4 +1,4 @@
-import pkg from '@whiskeysockets/baileys';
+import pkg from '@seaavey/baileys';
 const { generateWAMessageFromContent, proto } = pkg;
 export const handler = "listdl"
 export const description = "📥 *List Downloader Tools* 📥";
