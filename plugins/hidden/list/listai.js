@@ -1,4 +1,4 @@
-import pkg from '@seaavey/baileys';
+import pkg from '@whiskeysockets/baileys';
 const { generateWAMessageFromContent, proto } = pkg;
 export const handler = "listai"
 export const description = "📜 *List Artificial Intelligence* 📜";

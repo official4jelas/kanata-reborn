@@ -1,4 +1,4 @@
-import pkg, { prepareWAMessageMedia } from '@seaavey/baileys';
+import pkg, { prepareWAMessageMedia } from '@whiskeysockets/baileys';
 import fs from 'fs'
 const { generateWAMessageFromContent, proto } = pkg;
 import { helpMessage } from '../../helper/help.js'

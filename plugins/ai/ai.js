@@ -6,7 +6,7 @@ export const handler = "ai"
 export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     if (psn.trim() === '') {
         sock.sendMessage(id, {
-            text: "🤖 *AI GPT-3.5* Siap Membantu!\n\nGunakan prefix *ai* untuk bertanya apa saja ke AI.\nContoh: _*ai siapa presiden Indonesia saat ini?*_\n\n📝 *Ajukan pertanyaanmu dan biarkan AI memberikan jawabannya!*",
+            text: "Gunakan prefix *ai*/tag bot untuk bertanya apa saja ke AI.\nContoh: _*ai siapa presiden Indonesia saat ini?*_\n\n📝 *Ajukan pertanyaanmu dan biarkan AI memberikan jawabannya!*",
             ai: true
         });
         return;

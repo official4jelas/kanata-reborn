@@ -1,7 +1,11 @@
-export const handler = "stats"
+import pkg from '@whiskeysockets/baileys';
+import { getBuffer } from '../../helper/mediaMsg.js';
+const { proto, generateWAMessageFromContent } = pkg
 import os from 'os';
 import si from 'systeminformation'; // Tambahkan library systeminformation
 
+export const handler = "stats"
+export const description = "📊 Informasi sistem";
 export async function systemSpec() {
     const platform = os.platform();
     const release = os.release();
@@ -86,9 +90,22 @@ function calculateCpuLoad() {
 }
 
 
-
-
-export const description = "📊 Informasi sistem";
 export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
-    await sock.sendMessage(id, { text: await systemSpec() });
+    let msg = generateWAMessageFromContent(
+        id,
+        {
+            orderMessage: {
+                productId: "8569472943180260",
+                title: "Kanata Bot",
+                description: "now",
+                currencyCode: "IDR",
+                message: await systemSpec(),
+                priceAmount1000: "91000",
+                thumbnail: await getBuffer('https://telegra.ph/file/8360caca1efd0f697d122.jpg'),
+                surface: "Kanata Bot",
+                contextInfo: { mentionedJid: [id] },
+            },
+        }, {});
+    await sock.relayMessage(id, msg.message, {});
+    // await sock.sendMessage(id, { text: await systemSpec() });
 };

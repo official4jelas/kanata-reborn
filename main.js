@@ -11,7 +11,7 @@ import readline from 'readline';
 import { call } from './lib/call.js';
 import OpenAI from "openai";
 import { gpt4Hika } from './lib/ai.js';
-import { downloadMediaMessage } from '@seaavey/baileys';
+import { downloadMediaMessage } from '@whiskeysockets/baileys';
 
 // globalThis.openai = new OpenAI({ apiKey: globalThis.apiKey.gpt ,baseURL:"https://api.aimlapi.com"});
 globalThis.openai = new OpenAI({ apiKey: globalThis.apiKey.llama, baseURL: 'https://api.llama-api.com' });
@@ -109,8 +109,8 @@ export async function startBot() {
         sock.ev.on('messages.upsert', async chatUpdate => {
             try {
                 const m = chatUpdate.messages[0];
-                
-                
+
+
                 const { remoteJid } = m.key;
                 const sender = m.pushName || remoteJid;
                 const id = remoteJid;
@@ -119,42 +119,39 @@ export async function startBot() {
                 // return await sock.sendMessage(id, { video: await getMedia({ message: m.message.extendedTextMessage.contextInfo.quotedMessage }) }, { quoted: m })
 
                 if (m.message?.imageMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage) {
-                    const imageMessage = m.message.imageMessage || m.message.extendedTextMessage.contextInfo.quotedMessage.imageMessage;
+                    const imageMessage = m.message?.imageMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage;
                     const imageBuffer = await getMedia({ message: { imageMessage } });
-                    const commandImage = m.message.imageMessage?.caption || m.message.extendedTextMessage?.text;
+                    const commandImage = m.message?.imageMessage?.caption || m.message.extendedTextMessage?.text;
                     await prosesPerintah({ command: commandImage, sock, m, id, sender, noTel, attf: imageBuffer });
-                } else return
-
-                if (m.message?.audioMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.audioMessage) {
-                    const audioMessage = m.message.audioMessage || m.message.extendedTextMessage.contextInfo.quotedMessage.audioMessage;
-                    if (!m.message?.audioMessage?.contextInfo?.quotedMessage) return
-                    const audioBuffer = await getMedia(audioMessage);
-                    const commandAudio = m.message.audioMessage?.caption || m.message.extendedTextMessage?.contextInfo?.quotedMessage?.audioMessage?.caption;
-                    await prosesPerintah({ command: commandAudio, sock, m: audioMessage, id, sender, noTel, attf: audioBuffer });
-                } else return
-
+                }
                 if (m.message?.videoMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.videoMessage) {
-                    const videoMessage = m.message.videoMessage || m.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage;
-                    const videoBuffer = await getMedia(videoMessage);
-                    const commandVideo = m.message.videoMessage?.caption || m.message.extendedTextMessage?.contextInfo?.quotedMessage?.videoMessage?.caption;
-                    await prosesPerintah({ command: commandVideo, sock, m: videoMessage, id, sender, noTel, attf: videoBuffer });
-                } else return
+                    const videoMessage = m.message?.videoMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.videoMessage;
+                    const videoBuffer = await getMedia({ message: { videoMessage } });
+                    const commandVideo = m.message?.videoMessage?.caption || m.message.extendedTextMessage?.text;
+                    await prosesPerintah({ command: commandVideo, sock, m, id, sender, noTel, attf: videoBuffer });
+                }
+                if (m.message?.audioMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.audioMessage) {
+                    const audioMessage = m.message?.audioMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.audioMessage;
+                    const audioBuffer = await getMedia({ message: { audioMessage } });
+                    const commandAudio = m.message?.audioMessage?.caption || m.message.extendedTextMessage?.text;
+                    await prosesPerintah({ command: commandAudio, sock, m, id, sender, noTel, attf: audioBuffer });
+                }
 
                 if (m.message?.interactiveResponseMessage?.nativeFlowResponseMessage) {
                     const cmd = JSON.parse(m.message.interactiveResponseMessage?.nativeFlowResponseMessage?.paramsJson);
                     // console.log(cmd.id)
                     await prosesPerintah({ command: `!${cmd.id}`, sock, m, id, sender, noTel });
-                } else return
+                }
                 // console.log("Ini obj nya", m.message?.templateButtonReplyMessage)
                 if (m.message?.templateButtonReplyMessage) {
                     const cmd = m.message.templateButtonReplyMessage?.selectedId;
                     // console.log(cmd.id)
                     await prosesPerintah({ command: `!${cmd}`, sock, m, id, sender, noTel });
-                } else return
+                }
                 if (m.message?.buttonsResponseMessage) {
                     const cmd = m.message.buttonsResponseMessage?.selectedButtonId;
                     await prosesPerintah({ command: `!${cmd}`, sock, m, id, sender, noTel });
-                } else return
+                }
                 let botId = sock.user.id.replace(/:\d+/, '')
                 let botMentioned = m.message?.extendedTextMessage?.contextInfo?.participant.includes(botId)
                     || m.message?.extendedTextMessage?.contextInfo?.mentionedJid.includes(botId)

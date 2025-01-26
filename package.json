@@ -15,7 +15,7 @@
     "@google/generative-ai": "^0.14.1",
     "@hapi/boom": "^10.0.1",
     "@ilovepdf/ilovepdf-nodejs": "^0.2.6",
-    "@seaavey/baileys": "^6.6.5",
+    "@whiskeysockets/baileys": "github:kangfarrel/felzar-Baileys",
     "@vreden/youtube_scraper": "latest",
     "axios": "^1.7.2",
     "chalk": "^5.3.0",

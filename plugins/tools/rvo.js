@@ -1,4 +1,3 @@
-import { getMedia } from "../../helper/mediaMsg.js";
 
 export const handler = 'rvo'
 export const description = 'Read View Once'
@@ -7,7 +6,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
         const isViewOnceVid = m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.videoMessage?.viewOnce
         const isViewOnceImg = m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage?.viewOnce
 
-        if (!isViewOnceImg && !isViewOnceVid) return await sock.sendMessage(id, { text: 'Kocak, itu bukan view once' })
+        if (!isViewOnceImg && !isViewOnceVid) return
 
         if (/image/.test(m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage?.mimetype)) {
             return await sock.sendMessage(id, { image: attf }, { quoted: m })
