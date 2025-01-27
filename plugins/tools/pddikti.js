@@ -4,20 +4,19 @@ export const handler = 'pddikti'
 export const description = 'Resolve Information from Pddikti by NIM/Name'
 export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
     if (psn == "") return await sock.sendMessage(id, { text: 'Masukkan Nim/Nama untuk dicari,contoh `pddikti SSI202203088`' })
-    await sock.sendMessage(id, { text: 'Tunggu sebentar,ini sedikit memakan waktu ...`' })
+    await sock.sendMessage(id, { text: 'Tunggu sebentar,ini sedikit memakan waktu ...' })
     const result = await pddiktiSearch(psn)
     const rows = []
     result.forEach((d, i) => {
         rows.push({
-            header: d.link,
-            highlight_label: d.nim,
-            title: d.nama,
+            header: d.nim,
+            title: `${d.nama} - ${d.nim}`,
             description: `${d.programStudi} - ${d.perguruanTinggi}`,
             id: `pdd ${d.link}`,
         })
     })
     await sock.sendMessage(id, {
-        text: `Hasil Pencarian *PDDikti* untuk ${psn}`,
+        text: `Hasil Pencarian *PDDikti* untuk ${psn}\n Klik Hasil pencarian untuk melihat detail`,
         footer: 'Kanata-V2',
         buttons: [
 
@@ -30,7 +29,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
                 nativeFlowInfo: {
                     name: 'single_select',
                     paramsJson: JSON.stringify({
-                        title: 'message',
+                        title: 'Hasil Pencarian',
                         sections: [
                             {
                                 title: 'Hasil Pencarian Pddikti',
