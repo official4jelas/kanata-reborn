@@ -1,7 +1,3 @@
-import { createServer } from 'node:http'
-import express from 'express'
-import { dirname, join } from 'node:path'
-import { Server } from 'socket.io'
 import './global.js'
 import { Kanata, clearMessages } from './helper/bot.js';
 import { groupParticipants, groupUpdate } from './lib/group.js';
@@ -13,17 +9,13 @@ import path from 'path';
 import chalk from 'chalk';
 import readline from 'readline';
 import { call } from './lib/call.js';
+import { gpt4Hika } from './lib/ai.js';
 
 
-const app = express()
-const server = createServer(app)
-globalThis.io = new Server(server)
 
-const _dirname = dirname(fileURLToPath(import.meta.url))
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Fungsi untuk mencari semua file .js secara rekursif
 function findJsFiles(dir) {
     let results = [];
     const list = fs.readdirSync(dir);
@@ -31,11 +23,9 @@ function findJsFiles(dir) {
         const filePath = path.join(dir, file);
         const stat = fs.statSync(filePath);
 
-        // Jika itu folder, lakukan rekursi
         if (stat && stat.isDirectory()) {
             results = results.concat(findJsFiles(filePath));
         }
-        // Jika itu file .js, tambahkan ke results
         else if (file.endsWith('.js')) {
             results.push(filePath);
         }
@@ -43,30 +33,34 @@ function findJsFiles(dir) {
     return results;
 }
 
-app.get('/', (req, res) => {
-    res.sendFile(join(_dirname, 'index.html'))
-})
-
-
-
-async function getPhoneNumber(notelp) {
+async function getPhoneNumber() {
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
     const namaSesiPath = path.join(__dirname, globalThis.sessionName);
 
     try {
         await fs.promises.access(namaSesiPath);
-        return null
+        rl.close();
     } catch {
-        const validatePhoneNumber = (notelp) => {
-            const phoneRegex = /^62\d{9,15}$/; // Nomor harus mulai dengan '62' dan minimal 10 digit
-            return phoneRegex.test(notelp);
-        };
-
-        if (validatePhoneNumber(notelp)) {
-            return notelp;
-        } else {
-            throw new Error("Nomor telepon tidak valid! Pastikan dimulai dengan '62' dan hanya berisi angka.");
-        }
+        return new Promise(resolve => {
+            const validatePhoneNumber = (input) => {
+                const phoneRegex = /^62\d{9,15}$/; // Nomor kudu mulai karo '62' lan minimal 10 digit
+                return phoneRegex.test(input);
+            };
+            const askForPhoneNumber = () => {
+                rl.question(chalk.yellow("Masukkan nomor telepon (dengan kode negara, contoh: 628xxxxx): "), input => {
+                    if (validatePhoneNumber(input)) {
+                        rl.close();
+                        resolve(input);
+                    } else {
+                        console.log(chalk.red("Nomor telepon ora valid! Pastikan dimulai dengan '62' lan isine hanya angka (minimal 10 digit)."));
+                        askForPhoneNumber(); // Ulangi nek salah
+                    }
+                });
+                console.log('...')
+            };
+            console.log("Selamat Datang di Kanata Bot")
+            askForPhoneNumber();
+        });
     }
 }
 
@@ -81,7 +75,6 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
     }
     console.log("cmd:", cmd)
     console.log(args)
-    // console.log(cmd)
     const pluginsDir = path.join(__dirname, 'plugins');
     const plugins = Object.fromEntries(
         await Promise.all(findJsFiles(pluginsDir).map(async file => {
@@ -97,50 +90,66 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
     }
 
 }
-export async function startBot(notelp) {
-    const phoneNumber = await getPhoneNumber(notelp);
-    if (!phoneNumber) {
-        console.log(chalk.yellow("Sesi sudah ada, tidak perlu nomor baru."));
-        globalThis.io.emit("broadcastMessage","Sesi sudah ada, tidak perlu nomor baru.");
-        return;
-    }
+
+export async function startBot() {
+    const phoneNumber = await getPhoneNumber();
     const bot = new Kanata({ phoneNumber, sessionId: globalThis.sessionName });
 
     bot.start().then(sock => {
         sock.ev.on('messages.upsert', async chatUpdate => {
             try {
                 const m = chatUpdate.messages[0];
+
+
                 const { remoteJid } = m.key;
                 const sender = m.pushName || remoteJid;
                 const id = remoteJid;
                 const noTel = remoteJid.split('@')[0].replace(/[^0-9]/g, '');
 
                 if (m.message?.imageMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage) {
-                    const imageMessage = m.message.imageMessage || m.message.extendedTextMessage.contextInfo.quotedMessage.imageMessage;
+                    const imageMessage = m.message?.imageMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage;
                     const imageBuffer = await getMedia({ message: { imageMessage } });
-                    const commandImage = m.message.imageMessage?.caption || m.message.extendedTextMessage?.text;
+                    const commandImage = m.message?.imageMessage?.caption || m.message.extendedTextMessage?.text;
                     await prosesPerintah({ command: commandImage, sock, m, id, sender, noTel, attf: imageBuffer });
                 }
-
-                if (m.message?.audioMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.audioMessage) {
-                    const audioMessage = m.message.audioMessage || m.message.extendedTextMessage.contextInfo.quotedMessage.audioMessage;
-                    // console.log(chatUpdate.type)
-                    if (!m.message?.audioMessage?.contextInfo?.quotedMessage) return
-                    const audioBuffer = await getMedia(audioMessage);
-                    const commandAudio = m.message.audioMessage?.caption || m.message.extendedTextMessage?.contextInfo?.quotedMessage?.audioMessage?.caption;
-                    await prosesPerintah({ command: commandAudio, sock, m: audioMessage, id, sender, noTel, attf: audioBuffer });
-                }
-
                 if (m.message?.videoMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.videoMessage) {
-                    const videoMessage = m.message.videoMessage || m.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage;
-                    const videoBuffer = await getMedia(videoMessage);
-                    const commandVideo = m.message.videoMessage?.caption || m.message.extendedTextMessage?.contextInfo?.quotedMessage?.videoMessage?.caption;
-                    await prosesPerintah({ command: commandVideo, sock, m: videoMessage, id, sender, noTel, attf: videoBuffer });
+                    const videoMessage = m.message?.videoMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.videoMessage;
+                    const videoBuffer = await getMedia({ message: { videoMessage } });
+                    const commandVideo = m.message?.videoMessage?.caption || m.message.extendedTextMessage?.text;
+                    await prosesPerintah({ command: commandVideo, sock, m, id, sender, noTel, attf: videoBuffer });
                 }
+                if (m.message?.audioMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.audioMessage) {
+                    const audioMessage = m.message?.audioMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.audioMessage;
+                    const audioBuffer = await getMedia({ message: { audioMessage } });
+                    const commandAudio = m.message?.audioMessage?.caption || m.message.extendedTextMessage?.text;
+                    await prosesPerintah({ command: commandAudio, sock, m, id, sender, noTel, attf: audioBuffer });
+                }
+
                 if (m.message?.interactiveResponseMessage?.nativeFlowResponseMessage) {
                     const cmd = JSON.parse(m.message.interactiveResponseMessage?.nativeFlowResponseMessage?.paramsJson);
-                    // console.log(cmd.id)
                     await prosesPerintah({ command: `!${cmd.id}`, sock, m, id, sender, noTel });
+                }
+                if (m.message?.templateButtonReplyMessage) {
+                    const cmd = m.message.templateButtonReplyMessage?.selectedId;
+                    await prosesPerintah({ command: `!${cmd}`, sock, m, id, sender, noTel });
+                }
+                if (m.message?.buttonsResponseMessage) {
+                    const cmd = m.message.buttonsResponseMessage?.selectedButtonId;
+                    await prosesPerintah({ command: `!${cmd}`, sock, m, id, sender, noTel });
+                }
+                let botId = sock.user.id.replace(/:\d+/, '')
+                let botMentioned = m.message?.extendedTextMessage?.contextInfo?.participant.includes(botId)
+                    || m.message?.extendedTextMessage?.contextInfo?.mentionedJid.includes(botId)
+                let fullmessage = m.message?.conversation || m.message?.extendedTextMessage.text
+                    || m.message?.extendedTextMessage?.contextInfo
+                // auto AI mention
+                if (botMentioned) {
+                    try {
+                        await sock.sendMessage(id, { text: await gpt4Hika({ prompt: fullmessage, id }) })
+                    } catch (error) {
+                        await sock.sendMessage(id, { text: 'ups,ada yang salah' })
+
+                    }
                 }
 
                 const chat = await clearMessages(m);
@@ -157,6 +166,8 @@ export async function startBot(notelp) {
             }
         });
 
+
+
         sock.ev.on('group-participants.update', ev => groupParticipants(ev, sock));
         sock.ev.on('groups.update', ev => groupUpdate(ev, sock));
         sock.ev.on('call', (callEv) => {
@@ -164,35 +175,5 @@ export async function startBot(notelp) {
         })
     }).catch(error => console.log("Error starting Bot:", error));
 }
-globalThis.io.on('connection', (sock) => {
-    sock.on('generateQR', async (phoneNumber) => {
-        try {
-            console.log(`Nomor telepon diterima: ${phoneNumber}`);
-            await startBot(phoneNumber);
-            globalThis.io.emit('broadcastMessage', `Bot berhasil dimulai untuk nomor: ${phoneNumber}`);
-        } catch (error) {
-            console.log(error);
-            globalThis.io.emit('broadcastMessage', `Gagal memulai bot: ${error.message}`);
-        }
-    });
 
-    console.log(chalk.green('WebSocket connected...'));
-    sock.on('disconnect', () => {
-        console.log('WebSocket disconnected');
-    });
-});
-
-server.listen(3000, () => {
-    console.log('server running at http://localhost:3000');
-});
-
-
-
-
-
-
-
-
-
-
-
+startBot();
