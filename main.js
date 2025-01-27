@@ -140,7 +140,7 @@ export async function startBot() {
                 let botId = sock.user.id.replace(/:\d+/, '')
                 let botMentioned = m.message?.extendedTextMessage?.contextInfo?.participant.includes(botId)
                     || m.message?.extendedTextMessage?.contextInfo?.mentionedJid.includes(botId)
-                let fullmessage = m.message?.conversation || m.message?.extendedTextMessage.text
+                let fullmessage = m.message?.conversation || m.message?.extendedTextMessage?.text
                     || m.message?.extendedTextMessage?.contextInfo
                 // auto AI mention
                 if (botMentioned) {
