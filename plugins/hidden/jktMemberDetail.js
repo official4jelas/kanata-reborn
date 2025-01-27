@@ -56,7 +56,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
                             {
                                 "name": "cta_url",
                                 "buttonParamsJson": JSON.stringify({
-                                    display_text: `Tiktok : dmJkt.socialMedia.Tiktok.username`,
+                                    display_text: `Tiktok : ${dmJkt.socialMedia.Tiktok.username}`,
                                     url: dmJkt.socialMedia.Tiktok.link,
                                     merchant_url: dmJkt.socialMedia.Tiktok.link,
                                 })

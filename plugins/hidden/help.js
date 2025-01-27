@@ -2,6 +2,7 @@ import pkg, { prepareWAMessageMedia } from '@seaavey/baileys';
 import fs from 'fs'
 const { generateWAMessageFromContent, proto } = pkg;
 import { helpMessage } from '../../helper/help.js'
+import { getBuffer } from '../../helper/mediaMsg.js';
 export const handler = ["menu", "help", "h", "hai"]
 export const description = "List All Menu";
 export default async ({ sock, id, m, noTel, sender }) => {
@@ -25,6 +26,7 @@ export default async ({ sock, id, m, noTel, sender }) => {
     }
     await sock.sendMessage(id, {
         text: caption,
+        thumbnail: await getBuffer('https://telegra.ph/file/a6f3ef42e42efcf542950.jpg'),
         buttons: [
             {
                 buttonId: 'ping',
