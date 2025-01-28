@@ -130,11 +130,11 @@ export async function startBot() {
                     await prosesPerintah({ command: `!${cmd.id}`, sock, m, id, sender, noTel });
                 }
                 if (m.message?.templateButtonReplyMessage) {
-                    const cmd = m.message.templateButtonReplyMessage?.selectedId;
+                    const cmd = m.message?.templateButtonReplyMessage?.selectedId;
                     await prosesPerintah({ command: `!${cmd}`, sock, m, id, sender, noTel });
                 }
                 if (m.message?.buttonsResponseMessage) {
-                    const cmd = m.message.buttonsResponseMessage?.selectedButtonId;
+                    const cmd = m.message?.buttonsResponseMessage?.selectedButtonId;
                     await prosesPerintah({ command: `!${cmd}`, sock, m, id, sender, noTel });
                 }
                 let botId = sock.user.id.replace(/:\d+/, '')
