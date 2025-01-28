@@ -31,7 +31,7 @@ const ytSearchResult = async (query) => {
             rows: [{
                 title: "Get Video 🎥",
                 description: `${hasil.title}`,
-                id: `yd ${hasil.url}`
+                id: `yd2 ${hasil.url}`
             },
             {
                 title: "Get Audio 🎵",
@@ -114,7 +114,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
                 buttons: [
                     {
                         name: "quick_reply",
-                        buttonParamsJson: `{"display_text":"📽️ Download Video","id":"yd ${result.url}"}`
+                        buttonParamsJson: `{"display_text":"📽️ Download Video","id":"yd2 ${result.url}"}`
                     },
                     {
                         name: "quick_reply",
