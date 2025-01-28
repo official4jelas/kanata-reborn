@@ -1,18 +1,17 @@
-import { hikaru } from "../../helper/hikaru.js";
 import { uploadGambar2 } from "../../helper/uploader.js";
-export const handler = "remini"
-export const description = "✨ Remini: Ubah gambar burik menjadi HD! 📸";
+export const handler = "jadianime2"
+export const description = "✨ Berikan gambar burikmu,dan biarkan Bot berimajinasi! 📸";
 export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
-    // Jika gambar dalam bentuk buffer
     if (Buffer.isBuffer(attf)) {
-        await sock.sendMessage(id, { text: `⏱️ Bentar,gambar burikmu sedang diproses` });
+        await sock.sendMessage(id, { text: `⏱️ tunggu Bentar,Bot sedang berimajinasi` });
         try {
-            // Mengunggah gambar dan mengubah menjadi HD menggunakan API Remini
             const imageUrl = await uploadGambar2(attf);
-            const { url } = await fetch('https://fastrestapis.fasturl.cloud/aiimage/imgenlarger?url=' + imageUrl);
+            let url = `https://fastrestapis.fasturl.cloud/aiimage/imgreconstruction-v1?url=${imageUrl}&style=Anime%20Colorful`
+            console.log(url)
+            const response = await fetch(url);
             await sock.sendMessage(id, {
-                image: { url },
-                caption: '📷 HD Image berhasil! Gambar burikmu telah dikonversi ke kualitas HD 🎉'
+                image: { url: response.url },
+                caption: '📷 Image to Anime berhasil! 🎉'
             }, { quoted: m });
 
         } catch (error) {
@@ -26,5 +25,5 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
     if (!m.message?.conversation && !m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage) {
         return
     }
-    await sock.sendMessage(id, { text: 'Kirim atau balas gambar dengan caption *remini* untuk mengubahnya menjadi HD.' });
+    await sock.sendMessage(id, { text: 'Kirim atau balas gambar dengan caption *animai* untuk mengonversi gambar burik mu menjadi Anime.' });
 };

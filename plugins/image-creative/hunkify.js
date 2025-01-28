@@ -1,17 +1,17 @@
 import { uploadGambar2 } from "../../helper/uploader.js";
-export const handler = "hunkify"
-export const description = "✨  Filter ini bisa merubah tubuhmu menjadi berotot ! 📸";
+export const handler = "retro"
+export const description = "✨  Filter ini bisa merubah gambarmu menjadi berwarna ! 📸";
 export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
     // Jika gambar dalam bentuk buffer
     if (Buffer.isBuffer(attf)) {
-        await sock.sendMessage(id, { text: `⏱️ Bentar,bot sedang membuatmu berotot...` });
+        await sock.sendMessage(id, { text: `⏱️ Bentar,bot sedang mewarnai gambar...` });
         try {
-            // Mengunggah gambar dan mengubah menjadi HD menggunakan API hunkify
+            // Mengunggah gambar dan mengubah menjadi HD menggunakan API retro
             const imageUrl = await uploadGambar2(attf);
-            const response = await fetch(`${globalThis.apiHelper.skizotech.baseUrl}hunkify?apikey=${globalThis.apiHelper.skizotech.apikey}&url=${imageUrl}`);
+            const response = await fetch(`'https://fastrestapis.fasturl.cloud/aiimage/imgcolorize?url=${imageUrl}`);
             await sock.sendMessage(id, {
                 image: { url: response.url },
-                caption: '📷 Hunkify berhasil 🎉'
+                caption: '📷 Retro Image berhasil 🎉'
             }, { quoted: m });
 
         } catch (error) {
@@ -25,5 +25,5 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
     if (!m.message?.conversation && !m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage) {
         return
     }
-    await sock.sendMessage(id, { text: 'Kirim atau balas gambar dengan caption *hunkify* untuk mengubahnya menjadi Berotot.' });
+    await sock.sendMessage(id, { text: 'Kirim atau balas gambar dengan caption *retro* untuk mengubahnya menjadi berwarna.' });
 };
