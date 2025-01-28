@@ -138,8 +138,8 @@ export async function startBot() {
                     await prosesPerintah({ command: `!${cmd}`, sock, m, id, sender, noTel });
                 }
                 let botId = sock.user.id.replace(/:\d+/, '')
-                let botMentioned = m.message?.extendedTextMessage?.contextInfo?.participant.includes(botId)
-                    || m.message?.extendedTextMessage?.contextInfo?.mentionedJid.includes(botId)
+                let botMentioned = m.message?.extendedTextMessage?.contextInfo?.participant?.includes(botId)
+                    || m.message?.extendedTextMessage?.contextInfo?.mentionedJid?.includes(botId)
                 let fullmessage = m.message?.conversation || m.message?.extendedTextMessage?.text
                     || m.message?.extendedTextMessage?.contextInfo
                 // auto AI mention

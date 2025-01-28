@@ -1,4 +1,5 @@
 import { mahasiswaDetail } from "../../lib/scraper/pddikti.js";
+import loadAssets from "../../helper/loadAssets.js";
 
 export const handler = 'pdd'
 export const description = 'Resolve Information from PDDikti by NIM/Name'
@@ -17,6 +18,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
     text += `Status awal Mhs : \`${result['Status Awal Mahasiswa']}\`\n`;
     text += `Status akhir Mhs : \`${result['Status Terakhir Mahasiswa']}\`\n`;
     sock.sendMessage(id, {
-        text
+        image: { url: await loadAssets('pddikti.png', 'img') },
+        caption: text
     }, { quoted: m });
 };
