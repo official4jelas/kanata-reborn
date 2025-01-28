@@ -12,6 +12,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     try {
         await sock.sendMessage(id, { text: '🔄 *Sedang diproses...* \n_Mohon tunggu sebentar_ ...' });
         let { downloadLinks } = await ytShorts(psn);
+        console.log(downloadLinks)
         await sock.sendMessage(id, { video: { url: downloadLinks[0] } });
     } catch (error) {
         await sock.sendMessage(id, { text: '❌ *Ups,Terjadi kesalahan Silahkan coba beberapa saat lagi*' });
