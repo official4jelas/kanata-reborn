@@ -1,3 +1,4 @@
+import { ryzen } from "../../helper/ryzen.js";
 import { ytShorts } from "../../lib/scraper/yt-shorts.js";
 
 export const description = "YouTube Short Downloader provided by *Roidev*";
@@ -11,8 +12,10 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     }
     try {
         await sock.sendMessage(id, { text: '🔄 *Sedang diproses...* \n_Mohon tunggu sebentar_ ...' });
-        let { videoSrc } = await ytShorts(psn);
-        await sock.sendMessage(id, { video: { url: videoSrc } });
+        let { data } = await ryzen('downloader/ytmp4', {
+            params: { url: psn }
+        })
+        await sock.sendMessage(id, { video: await fetch(data.url) });
     } catch (error) {
         await sock.sendMessage(id, { text: '❌ *Ups,Terjadi kesalahan Silahkan coba beberapa saat lagi*' });
         throw error
