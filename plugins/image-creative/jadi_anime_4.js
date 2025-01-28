@@ -1,5 +1,5 @@
 import { uploadGambar2 } from "../../helper/uploader.js";
-export const handler = "jadianime4"
+export const handler = "jadianime"
 export const description = "✨ Berikan gambar burikmu,dan biarkan Bot berimajinasi! 📸";
 export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
     if (Buffer.isBuffer(attf)) {
