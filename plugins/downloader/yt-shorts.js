@@ -1,8 +1,7 @@
 import { ryzen } from "../../helper/ryzen.js";
-import { ytShorts } from "../../lib/scraper/yt-shorts.js";
 
 export const description = "YouTube Short Downloader provided by *Roidev*";
-export const handler = "ysd"
+export const handler = ['ysd', 'yd2']
 export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     if (psn === '') {
         await sock.sendMessage(id, {
