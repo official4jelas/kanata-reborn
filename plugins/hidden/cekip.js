@@ -41,6 +41,7 @@ const getNetworkIPs = () => {
 
 
 export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
+    console.log(id)
     const networkInfo = getDetailedNetworkInfo();
     networkInfo.forEach(async (info) => {
         await sock.sendMessage(id, {

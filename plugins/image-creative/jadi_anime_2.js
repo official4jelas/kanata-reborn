@@ -7,7 +7,6 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
         try {
             const imageUrl = await uploadGambar2(attf);
             let url = `https://fastrestapis.fasturl.cloud/aiimage/imgreconstruction-v1?url=${imageUrl}&style=Anime%20Colorful`
-            console.log(url)
             const response = await fetch(url);
             await sock.sendMessage(id, {
                 image: { url: response.url },

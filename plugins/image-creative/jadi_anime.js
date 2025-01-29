@@ -1,14 +1,16 @@
 import { uploadGambar2 } from "../../helper/uploader.js";
-export const handler = "jadibening"
+export const handler = "jadianime"
 export const description = "✨ Berikan gambar burikmu,dan biarkan Bot berimajinasi! 📸";
 export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
     if (Buffer.isBuffer(attf)) {
         await sock.sendMessage(id, { text: `⏱️ tunggu Bentar,Bot sedang berimajinasi` });
         try {
             const imageUrl = await uploadGambar2(attf);
-            const { url } = await fetch(`https://fastrestapis.fasturl.cloud/aiimage/imgreconstruction-v1?url=${imageUrl}&style=Photo%20variation`);
+            let url = `https://fastrestapis.fasturl.cloud/aiimage/imgreconstruction-v1?url=${imageUrl}&style=Anime%20Drawing`
+            console.log(url)
+            const response = await fetch(url);
             await sock.sendMessage(id, {
-                image: { url },
+                image: { url: response.url },
                 caption: '📷 Image to Anime berhasil! 🎉'
             }, { quoted: m });
 

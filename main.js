@@ -11,8 +11,6 @@ import readline from 'readline';
 import { call } from './lib/call.js';
 import { gpt4Hika } from './lib/ai.js';
 
-
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -105,7 +103,6 @@ export async function startBot() {
                 const sender = m.pushName || remoteJid;
                 const id = remoteJid;
                 const noTel = remoteJid.split('@')[0].replace(/[^0-9]/g, '');
-
                 if (m.message?.imageMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage) {
                     const imageMessage = m.message?.imageMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage;
                     const imageBuffer = await getMedia({ message: { imageMessage } });
