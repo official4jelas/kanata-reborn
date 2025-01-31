@@ -113,6 +113,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Google Generative AI](https://github.com/GoogleCloudPlatform/generative-ai)
 - [Groq](https://groq.com/)
+- Hikaru FastURL
+- Ryzen Api
 - [RemoveBG](https://www.remove.bg/id/api)
 - [ILovePDF](https://www.iloveapi.com/)
 - [BetaBotz](https://api.betabotz.eu.org/)
@@ -121,5 +123,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contributors
 - [Roynaldi](https://github.com/idlanyor)
-- [PadilDev](https://github.com/kumis-xd)
 - [Puan Mahalini](https://github.com/puanmahalini)
