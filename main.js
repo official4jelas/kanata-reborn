@@ -159,11 +159,12 @@ export async function startBot() {
                         await prosesPerintah({ command: parsedMsg, sock, m, id, sender, noTel });
                     }
                 }
+                console.log(m)
+
             } catch (error) {
                 console.log('Error handling message:', error);
             }
         });
-
 
 
         sock.ev.on('group-participants.update', ev => groupParticipants(ev, sock));
@@ -172,6 +173,7 @@ export async function startBot() {
             call(callEv, sock)
         })
     }).catch(error => console.log("Error starting Bot:", error));
+
 }
 
 startBot();

@@ -25,8 +25,11 @@ export default async ({ sock, id, m, noTel, sender }) => {
         })
     }
     await sock.sendMessage(id, {
-        text: caption,
-        thumbnail: await getBuffer('https://telegra.ph/file/a6f3ef42e42efcf542950.jpg'),
+        caption,
+        thumbnail: await getBuffer('https://telegra.ph/file/8360caca1efd0f697d122.jpg'),
+        image: {
+            url: 'https://f.sed.lol/files/OwFZH.png',
+        },
         buttons: [
             {
                 buttonId: 'ping',
@@ -50,8 +53,26 @@ export default async ({ sock, id, m, noTel, sender }) => {
                 type: 1,
             }
         ],
+        footer: 'KANATA V2',
         headerType: 1,
-        viewOnce: true
+        viewOnce: true,
+        contextInfo: {
+            mentionedJid: [...sender],
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+                newsletterJid: globalThis.newsLetterJid,
+                newsletterName: 'Powered By : Roy',
+                serverMessageId: -1
+            },
+            forwardingScore: 999,
+            externalAdReply: {
+                title: 'Kanata-V2',
+                thumbnailUrl: 'https://telegra.ph/file/8360caca1efd0f697d122.jpg',
+                sourceUrl: globalThis.newsLetterUrl,
+                mediaType: 2,
+                renderLargerThumbnail: true
+            }
+        },
     }, {
         quoted: {
             key: {
@@ -61,7 +82,7 @@ export default async ({ sock, id, m, noTel, sender }) => {
             message: {
                 newsletterAdminInviteMessage: {
                     newsletterJid: '120363293401077915@newsletter',
-                    newsletterName: '',
+                    newsletterName: 'Roidev',
                     caption: 'Kanata'
                 }
             }
@@ -96,7 +117,7 @@ export default async ({ sock, id, m, noTel, sender }) => {
                         forwardingScore: 256,
                         externalAdReply: {
                             title: 'Roidev',
-                            thumbnailUrl: 'https://telegra.ph/file/a6f3ef42e42efcf542950.jpg',
+                            thumbnailUrl: 'https://telegra.ph/file/8360caca1efd0f697d122.jpg',
                             sourceUrl: 'https://whatsapp.com/channel/0029ValMR7jDp2Q7ldcaNK1L',
                             mediaType: 2,
                             renderLargerThumbnail: false
