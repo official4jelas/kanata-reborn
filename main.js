@@ -139,10 +139,11 @@ export async function startBot() {
                     || m.message?.extendedTextMessage?.contextInfo?.mentionedJid?.includes(botId)
                 let fullmessage = m.message?.conversation || m.message?.extendedTextMessage?.text
                     || m.message?.extendedTextMessage?.contextInfo
+                let ctx = m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.conversation || ''
                 // auto AI mention
                 if (botMentioned) {
                     try {
-                        await sock.sendMessage(id, { text: await gpt4Hika({ prompt: fullmessage, id }) })
+                        await sock.sendMessage(id, { text: await gpt4Hika({ prompt: `${fullmessage}  ${ctx}`, id }) })
                     } catch (error) {
                         await sock.sendMessage(id, { text: 'ups,ada yang salah' })
 
