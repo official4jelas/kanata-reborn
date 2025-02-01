@@ -84,7 +84,7 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
         }))
     );
     if (plugins[cmd]) {
-        await plugins[cmd]({ sock, m, id, psn: args.join(' '), sender, noTel, attf });
+        await plugins[cmd]({ sock, m, id, psn: args.join(' '), sender, noTel, attf, cmd });
     }
 
 }

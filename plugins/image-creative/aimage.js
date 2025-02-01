@@ -1,19 +1,34 @@
+import { dalle3 } from "../../lib/ai.js";
+
+/**
+ * Deskripsi plugin
+ */
 export const description = "🎨 *AI Image Generator* disediakan oleh *SkizoTech*";
-export const handler = "diff"
+
+/**
+ * Handler plugin
+ */
+export const handler = "aimage"
+
+
 export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     if (psn.trim() === '') {
+        // Pesan ketika query kosong
         await sock.sendMessage(id, {
-            text: "🖼️ Kasih deskripsi / query gambarnya dong kak!\n\nContoh: *diff pemandangan alam* atau *diff sunset di pantai*"
+            text: "🖼️ Kasih query gambarnya dong kak!\n\nContoh: *aimage loli kawaii* atau *aimage sunset di pantai*"
         });
         return;
     }
 
     try {
+        // Notifikasi proses sedang berlangsung
         await sock.sendMessage(id, { text: '🎨 Bot Sedang berimajinasi, tunggu bentar ya... ⏳' });
 
-        const { url } = await fetch(`https://fastrestapis.fasturl.cloud/aiimage/flux/model?prompt=${encodeURIComponent(psn)}&model=FLUX.1-Schnell-CF&size=1024x1024&steps=6&enhance=true&mode=image`);
-        await sock.sendMessage(id, { image: { url }, caption: `✨ Ini hasil gambar untuk query: _${psn}_` });
+        // Mengirimkan hasil gambar yang dihasilkan AI
+        const imageUrl = await dalle3(psn);
+        await sock.sendMessage(id, { image: { url: imageUrl }, caption: `✨ Ini hasil gambar untuk query: _${psn}_` });
     } catch (error) {
+        // Penanganan error dengan pesan yang lebih estetik
         await sock.sendMessage(id, { text: `⚠️ Maaf, terjadi kesalahan:\n\n${error.message}` });
     }
 };
