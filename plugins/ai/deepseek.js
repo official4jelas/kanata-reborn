@@ -1,15 +1,16 @@
 import axios from "axios";
 
 export const handler = 'deepseek'
-export const description = "AI GPT-4o-mini with Web Access provided by *RyzenAI*";
+export const description = "Deepseek AI Provided by Hikaru FastUrl";
 export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     if (psn === '') {
         sock.sendMessage(id, {
-            text: "prefix *deepseek* Tanyakan sesuatu kepada AI GPT-4o-mini\n contoh : deepseek What is Quantum Physics mean?"
+            text: "prefix *deepseek* Tanyakan sesuatu kepada AI DeepSeek\n contoh : deepseek What is Quantum Physics mean?"
 
         })
         return
     }
+    sock.sendMessage(id, { react: { text: '⏱️', key: m.key } })
     try {
         const payload = {
             "model": "deepseek-ai/DeepSeek-R1",
@@ -29,18 +30,37 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
             "frequency_penalty": 0,
             "top_p": 1,
             "top_k": 50
-        }
+        };
+
         const cfg = {
+            method: "POST",
             headers: {
-                Accept: 'application/json',
-                "Content-Type": 'application/json'
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        };
+
+        try {
+            const response = await fetch("https://fastrestapis.fasturl.cloud/aillm/deepseek", cfg);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
+
+            const data = await response.json();
+
+            let text = '';
+            text += 'Model: ' + data.result.model;
+            text += '\nResult: ' + data.result.choices[0].message.content;
+
+            await sock.sendMessage(id, { text });
+            await sock.sendMessage(id, { react: { text: '✅', key: m.key } })
+        } catch (error) {
+            console.error("Error:", error);
+        await sock.sendMessage(id, { react: { text: '❌', key: m.key } })
         }
-        const { data } = await axios.post('https://fastrestapis.fasturl.cloud/aillm/deepseek', payload, cfg)
-        let text = ''
-        text += 'Model :' + data.result.model
-        text += '\n Result :' + data.result.choices[0].message.content
-        await sock.sendMessage(id, { text });
+
     } catch (error) {
         console.log(error);
         await sock.sendMessage(id, { text: `Terjadi kesalahan di sisi server ${error}` });
