@@ -51,44 +51,8 @@ export default async ({ sock, id, m, noTel, sender }) => {
             }
         ],
         headerType: 1,
-        viewOnce: true,
-        contextInfo: {
-            mentionedJid: sender,
-            isForwarded: true,
-            forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363305152329358@newsletter',
-                newsletterName: 'Powered By : Roy',
-                serverMessageId: -1
-            },
-            // businessMessageForwardInfo: { businessOwnerJid: sock.decodeJid(sock.user.id) },
-            forwardingScore: 256,
-            externalAdReply: {
-                title: 'Roidev',
-                thumbnailUrl: await getBuffer('https://telegra.ph/file/a6f3ef42e42efcf542950.jpg'),
-                sourceUrl: 'https://whatsapp.com/channel/0029ValMR7jDp2Q7ldcaNK1L',
-                mediaType: 1,
-                renderLargerThumbnail: true
-            }
-        },
+        viewOnce: true
     }, {
-        contextInfo: {
-            mentionedJid: sender,
-            isForwarded: true,
-            forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363305152329358@newsletter',
-                newsletterName: 'Powered By : Roy',
-                serverMessageId: -1
-            },
-            // businessMessageForwardInfo: { businessOwnerJid: sock.decodeJid(sock.user.id) },
-            forwardingScore: 256,
-            externalAdReply: {
-                title: 'Roidev',
-                thumbnailUrl: 'https://telegra.ph/file/a6f3ef42e42efcf542950.jpg',
-                sourceUrl: 'https://whatsapp.com/channel/0029ValMR7jDp2Q7ldcaNK1L',
-                mediaType: 2,
-                renderLargerThumbnail: true
-            }
-        },
         quoted: {
             key: {
                 remoteJid: 'status@broadcast',
