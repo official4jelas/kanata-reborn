@@ -22,7 +22,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
         caption += '\n\n' + data.result.praising;
 
 
-        await sock.sendMessage(id, { image: { url: await loadAssets('github.png', 'image') }, caption }, { quoted: m });
+        await sock.sendMessage(id, { image: { url: 'https://f.sed.lol/files/TMJcw.png' }, caption }, { quoted: m });
 
     } catch (error) {
         await sock.sendMessage(id, { text: 'Username ngga ketemu nih,coba teliti lagi yaa.' })
