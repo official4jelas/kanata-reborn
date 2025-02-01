@@ -10,6 +10,7 @@ import chalk from 'chalk';
 import readline from 'readline';
 import { call } from './lib/call.js';
 import { gpt4Hika } from './lib/ai.js';
+import { schedulePrayerReminders } from './lib/jadwalshalat.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -159,14 +160,16 @@ export async function startBot() {
                         await prosesPerintah({ command: parsedMsg, sock, m, id, sender, noTel });
                     }
                 }
-                console.log(m)
+
+                // console.log(m)
 
             } catch (error) {
                 console.log('Error handling message:', error);
             }
         });
+        // schedulePrayerReminders(sock, globalThis.groupJid);
 
-
+        
         sock.ev.on('group-participants.update', ev => groupParticipants(ev, sock));
         sock.ev.on('groups.update', ev => groupUpdate(ev, sock));
         sock.ev.on('call', (callEv) => {
