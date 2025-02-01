@@ -68,9 +68,9 @@ export default async ({ sock, id, m, noTel, sender }) => {
             externalAdReply: {
                 title: 'Kanata-V2',
                 thumbnailUrl: 'https://telegra.ph/file/8360caca1efd0f697d122.jpg',
-                sourceUrl: globalThis.newsLetterUrl,
+                sourceUrl:'https://whatsapp.com/channel/0029VagADOLLSmbaxFNswH1m',
                 mediaType: 2,
-                renderLargerThumbnail: true
+                renderLargerThumbnail: false
             }
         },
     }, {
