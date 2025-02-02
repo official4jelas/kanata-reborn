@@ -1,5 +1,18 @@
 import { downloadContentFromMessage } from "@seaavey/baileys"
 
+export async function streamToBuffer(readableStream) {
+    const reader = readableStream.getReader();
+    const chunks = [];
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+    }
+
+    return Buffer.concat(chunks);
+}
+
 export const getMedia = async (msg) => {
     try {
         // Deteksi tipe media dari pesan
