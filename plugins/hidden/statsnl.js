@@ -91,21 +91,21 @@ function calculateCpuLoad() {
 
 
 export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
-    let msg = generateWAMessageFromContent(
-        globalThis.newsLetterJid,
-        {
-            orderMessage: {
-                productId: "8569472943180260",
-                title: "Kanata Bot",
-                description: "now",
-                currencyCode: "IDR",
-                message: await systemSpec(),
-                priceAmount1000: "91000",
-                thumbnail: await getBuffer('https://telegra.ph/file/8360caca1efd0f697d122.jpg'),
-                surface: "Kanata Bot",
-                contextInfo: { mentionedJid: [id] },
-            },
-        }, {});
-    await sock.relayMessage(globalThis.newsLetterJid, msg.message, {});
-    // await sock.sendMessage(id, { text: await systemSpec() });
+    // let msg = generateWAMessageFromContent(
+    //     globalThis.newsLetterJid,
+    //     {
+    //         orderMessage: {
+    //             productId: "8569472943180260",
+    //             title: "Kanata Bot",
+    //             description: "now",
+    //             currencyCode: "IDR",
+    //             message: await systemSpec(),
+    //             priceAmount1000: "91000",
+    //             thumbnail: await getBuffer('https://telegra.ph/file/8360caca1efd0f697d122.jpg'),
+    //             surface: "Kanata Bot",
+    //             contextInfo: { mentionedJid: [id] },
+    //         },
+    //     }, {});
+    // await sock.relayMessage(globalThis.newsLetterJid, msg.message, {});
+    await sock.sendMessage(globalThis.newsLetterJid, { text: await systemSpec() });
 };
