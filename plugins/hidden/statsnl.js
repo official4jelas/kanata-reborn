@@ -92,7 +92,7 @@ function calculateCpuLoad() {
 
 export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     let msg = generateWAMessageFromContent(
-        id,
+        globalThis.newsLetterJid,
         {
             orderMessage: {
                 productId: "8569472943180260",
@@ -101,7 +101,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
                 currencyCode: "IDR",
                 message: await systemSpec(),
                 priceAmount1000: "91000",
-                thumbnail: getBuffer('https://telegra.ph/file/8360caca1efd0f697d122.jpg'),
+                thumbnail: await getBuffer('https://telegra.ph/file/8360caca1efd0f697d122.jpg'),
                 surface: "Kanata Bot",
                 contextInfo: { mentionedJid: [id] },
             },
