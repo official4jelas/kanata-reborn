@@ -182,8 +182,8 @@ globalThis.io.on('connection', (sock) => {
     });
 });
 
-server.listen(80,'0.0.0.0', () => {
-    console.log('server running at http://0.0.0.0:80');
+server.listen(3000,'0.0.0.0', () => {
+    console.log('server running at http://0.0.0.0:3000');
 });
 
 
