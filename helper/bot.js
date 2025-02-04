@@ -1,5 +1,13 @@
 // import { makeWASocket, fetchLatestBaileysVersion, makeCacheableSignalKeyStore, makeInMemoryStore, useMultiFileAuthState, DisconnectReason, Browsers } from "@seaavey/baileys";
-import { makeWASocket, fetchLatestBaileysVersion, makeCacheableSignalKeyStore, makeInMemoryStore, useMultiFileAuthState, DisconnectReason, Browsers } from '@seaavey/baileys';
+import {
+    makeWASocket,
+    fetchLatestBaileysVersion,
+    makeCacheableSignalKeyStore,
+    makeInMemoryStore,
+    useMultiFileAuthState,
+    DisconnectReason,
+    Browsers
+} from '@seaavey/baileys';
 import pino from "pino";
 import NodeCache from "node-cache";
 import chalk from 'chalk';

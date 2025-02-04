@@ -99,7 +99,6 @@ export async function startBot() {
             try {
                 const m = chatUpdate.messages[0];
 
-
                 const { remoteJid } = m.key;
                 const sender = m.pushName || remoteJid;
                 const id = remoteJid;
@@ -161,15 +160,13 @@ export async function startBot() {
                     }
                 }
 
-                // console.log(m)
-
             } catch (error) {
                 console.log('Error handling message:', error);
             }
         });
         // schedulePrayerReminders(sock, globalThis.groupJid);
 
-        
+
         sock.ev.on('group-participants.update', ev => groupParticipants(ev, sock));
         sock.ev.on('groups.update', ev => groupUpdate(ev, sock));
         sock.ev.on('call', (callEv) => {
