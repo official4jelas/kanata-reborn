@@ -11,8 +11,14 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     try {
         await sock.sendMessage(id, { text: '🔄 *Processing...* Mohon tunggu sebentar...' });
         let result = await meta(psn);
-        // console.log(result.audio)
-        await sock.sendMessage(id, { video: { url: result }, caption: '🎥 *Video berhasil diunduh!*' });
+        if (Array.isArray(result)) {
+            result.forEach(async (res) => {
+                await sock.sendMessage(id, { video: { url: res.url }, caption: '🎥 *Video berhasil diunduh!*' });
+            });
+            return;
+        } else {
+            await sock.sendMessage(id, { video: { url: result.url }, caption: '🎥 *Video berhasil diunduh!*' });
+        }
 
     } catch (error) {
         await sock.sendMessage(id, { text: '❌ *Terjadi kesalahan:* \n' + error.message });
