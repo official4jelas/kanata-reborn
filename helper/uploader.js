@@ -35,7 +35,7 @@ export const uploadGambar2 = async (buffer) => {
         const headers = {
             ...form.getHeaders()
         };
-        const response = await axios.post('https://cdn.roidev.my.id', form, {
+        const response = await axios.post('https://cdn.roidev.my.id/upload', form, {
             headers
         })
         return response.data.message
