@@ -21,12 +21,12 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
         }
         const metadata = await sock.newsletterMetadata('invite', filterCode)
         let text = '*[ NEWSLETTER INFO ]*\n'
-        text += `📰 *ID :* ${metadata.name}\n`
+        text += `📰 *ID :* ${metadata.id}\n`
         text += `📰 *Nama :* ${metadata.name}\n`
         text += `📰 *Tanggal Pembuatan :* ${unixToDate(metadata.creation_time)}\n`
         text += `🔗 *Link :* https://whatsapp.com/channel/${metadata.invite}\n`
-        text += `👥 *Jumlah Pengikut: * ${metadata.subscribers}`
-        text += `📝 *Deskripsi:*\n ${metadata.desc}\n`
+        text += `👥 *Jumlah Pengikut: * ${metadata.subscribers}\n`
+        text += `📝 *Deskripsi:*\n ${metadata.desc || 'Ngga ada deskripsi'}\n`
         await sock.sendMessage(id, { text })
     } catch (e) {
         await sock.sendMessage(id, { text: '❌ Terjadi kesalahan saat mengambil informasi channel: ' + e.message });
