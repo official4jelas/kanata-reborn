@@ -1,4 +1,3 @@
-import axios from "axios";
 
 export const handler = 'deepseek'
 export const description = "Deepseek AI Provided by Ryzendesu";
@@ -12,26 +11,18 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     }
     sock.sendMessage(id, { react: { text: '⏱️', key: m.key } })
     try {
+        const prompt = "be a helpfull assistant"
+        const response = await fetch(`https://api.ryzendesu.vip/api/ai/deepseek?text=${psn}&prompt=${prompt}`);
+
+        const data = await response.json();
 
 
-
-
-        try {
-            const prompt = "be a helpfull assistant"
-            const response = await fetch(`https://api.ryzendesu.vip/api/ai/deepseek?text=${psn}&prompt=${prompt}`);
-
-            const data = await response.json();
-
-
-            await sock.sendMessage(id, { text: data.answer });
-            await sock.sendMessage(id, { react: { text: '✅', key: m.key } })
-        } catch (error) {
-            console.error("Error:", error);
-            await sock.sendMessage(id, { react: { text: '❌', key: m.key } })
-        }
-
+        await sock.sendMessage(id, { text: data.answer });
+        await sock.sendMessage(id, { react: { text: '✅', key: m.key } })
     } catch (error) {
-        console.log(error);
-        await sock.sendMessage(id, { text: `Terjadi kesalahan di sisi server ${error}` });
+        console.error("Error:", error);
+        await sock.sendMessage(id, { react: { text: '❌', key: m.key } })
     }
+
+
 };

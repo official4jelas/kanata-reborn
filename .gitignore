@@ -3,8 +3,6 @@ node_modules
 package-lock.json
 store-*.json
 *.mp4
-*.png
-*.jpeg
 db.*
 *.zip
 *.tar.gz

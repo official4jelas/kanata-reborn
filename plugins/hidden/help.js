@@ -25,7 +25,7 @@ export default async ({ sock, id, m, noTel, sender }) => {
         caption,
         thumbnail: await getBuffer('https://telegra.ph/file/8360caca1efd0f697d122.jpg'),
         image: {
-            url: 'https://f.sed.lol/files/OwFZH.png',
+            url: await loadAssets('kanata-cover.jpeg', 'image'),
         },
         buttons: [
             {
