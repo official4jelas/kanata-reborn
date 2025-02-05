@@ -98,6 +98,7 @@ export async function startBot() {
         sock.ev.on('messages.upsert', async chatUpdate => {
             try {
                 const m = chatUpdate.messages[0];
+                // console.log(m)
                 // const metadata = await sock.newsletterMetadata('invite', filterCode)
                 // metadata.id
                 const { remoteJid } = m.key;
