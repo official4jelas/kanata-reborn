@@ -35,10 +35,10 @@ export const uploadGambar2 = async (buffer) => {
         const headers = {
             ...form.getHeaders()
         };
-        const response = await axios.post('https://f.sed.lol/files', form, {
+        const response = await axios.post('https://cdn.roidev.my.id', form, {
             headers
         })
-        return response.data.url
+        return response.data.message
     } catch (error) {
         throw error
     }
