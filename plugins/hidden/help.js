@@ -1,4 +1,5 @@
 import { helpMessage } from '../../helper/help.js'
+import loadAssets from '../../helper/loadAssets.js';
 import { getBuffer } from '../../helper/mediaMsg.js';
 export const handler = ["menu", "help", "h", "hai"]
 export const description = "List All Menu";
