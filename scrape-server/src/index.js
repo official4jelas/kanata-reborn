@@ -12,6 +12,9 @@ import { pddiktiSearch, mahasiswaDetail } from './pddikti.js';
 import { pinterest } from './pinterest.js';
 import { shutterstock } from './shutterstock.js';
 import { memberJkt, detailMember } from './jkt48.js';
+import { getMp3Murotal } from './murrotal-mp3.js';
+import { tiktokDl } from './tiktok.js';
+import { surahNames } from '../helper/surahname.js';
 
 export {
     ytShorts,
@@ -22,5 +25,8 @@ export {
     pinterest,
     shutterstock,
     memberJkt,
-    detailMember
+    detailMember,
+    getMp3Murotal,
+    tiktokDl,
+    surahNames,
 };

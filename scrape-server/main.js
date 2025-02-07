@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { 
+import {
     ytShorts,
     spotifyDownload,
     rednote,
@@ -9,7 +9,10 @@ import {
     pinterest,
     shutterstock,
     memberJkt,
-    detailMember
+    detailMember,
+    getMp3Murotal,
+    surahNames,
+    tiktokDl
 } from './src/index.js';
 
 const app = express();
@@ -165,6 +168,33 @@ app.get('/', (req, res) => {
                     </ul>
                 </div>
             </div>
+
+            <h2>Murotal MP3</h2>
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="path">/api/getMp3Murotal</span>
+                <p>Mengambil daftar murotal MP3</p>
+            </div>
+
+            <h2>Surah Names</h2>
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="path">/api/surahNames</span>
+                <p>Mengambil daftar nama surah</p>
+            </div>
+
+            <h2>Tiktok Downloader</h2>
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="path">/api/tiktok?url={url}</span>
+                <p>Mengambil data dari Tiktok</p>
+                <div class="params">
+                    <p><b>Parameter:</b></p>
+                    <ul>
+                        <li>url (required) - URL Tiktok</li>
+                    </ul>
+                </div>
+            </div>
         </body>
         </html>
     `);
@@ -184,13 +214,32 @@ app.get('/api/ytshorts', async (req, res) => {
     try {
         const { url } = req.query;
         if (!url) {
-            return res.status(400).json({ 
-                status: false, 
-                message: 'URL parameter diperlukan' 
+            return res.status(400).json({
+                status: false,
+                message: 'URL parameter diperlukan'
             });
         }
-        
+
         const result = await ytShorts(url);
+        res.json({
+            status: true,
+            result
+        });
+    } catch (error) {
+        handleError(res, error);
+    }
+});
+app.get('/api/tiktok', async (req, res) => {
+    try {
+        const { url } = req.query;
+        if (!url) {
+            return res.status(400).json({
+                status: false,
+                message: 'URL parameter diperlukan'
+            });
+        }
+
+        const result = await tiktokDl(url);
         res.json({
             status: true,
             result
@@ -205,12 +254,12 @@ app.get('/api/spotify', async (req, res) => {
     try {
         const { url } = req.query;
         if (!url) {
-            return res.status(400).json({ 
-                status: false, 
-                message: 'URL parameter diperlukan' 
+            return res.status(400).json({
+                status: false,
+                message: 'URL parameter diperlukan'
             });
         }
-        
+
         const result = await spotifyDownload(url);
         res.json({
             status: true,
@@ -226,12 +275,12 @@ app.get('/api/rednote', async (req, res) => {
     try {
         const { url } = req.query;
         if (!url) {
-            return res.status(400).json({ 
-                status: false, 
-                message: 'URL parameter diperlukan' 
+            return res.status(400).json({
+                status: false,
+                message: 'URL parameter diperlukan'
             });
         }
-        
+
         const result = await rednote(url);
         res.json({
             status: true,
@@ -247,12 +296,12 @@ app.get('/api/pinterest', async (req, res) => {
     try {
         const { url } = req.query;
         if (!url) {
-            return res.status(400).json({ 
-                status: false, 
-                message: 'URL parameter diperlukan' 
+            return res.status(400).json({
+                status: false,
+                message: 'URL parameter diperlukan'
             });
         }
-        
+
         const result = await pinterest(url);
         res.json({
             status: true,
@@ -268,12 +317,12 @@ app.get('/api/shutterstock', async (req, res) => {
     try {
         const { url } = req.query;
         if (!url) {
-            return res.status(400).json({ 
-                status: false, 
-                message: 'URL parameter diperlukan' 
+            return res.status(400).json({
+                status: false,
+                message: 'URL parameter diperlukan'
             });
         }
-        
+
         const result = await shutterstock(url);
         res.json({
             status: true,
@@ -289,12 +338,12 @@ app.get('/api/pddikti/search', async (req, res) => {
     try {
         const { q } = req.query;
         if (!q) {
-            return res.status(400).json({ 
-                status: false, 
-                message: 'Query parameter diperlukan' 
+            return res.status(400).json({
+                status: false,
+                message: 'Query parameter diperlukan'
             });
         }
-        
+
         const result = await pddiktiSearch(q);
         res.json({
             status: true,
@@ -310,12 +359,12 @@ app.get('/api/pddikti/detail', async (req, res) => {
     try {
         const { link } = req.query;
         if (!link) {
-            return res.status(400).json({ 
-                status: false, 
-                message: 'Link parameter diperlukan' 
+            return res.status(400).json({
+                status: false,
+                message: 'Link parameter diperlukan'
             });
         }
-        
+
         const result = await mahasiswaDetail(link);
         res.json({
             status: true,
@@ -344,12 +393,12 @@ app.get('/api/jkt48/member/:id', async (req, res) => {
     try {
         const { id } = req.params;
         if (!id) {
-            return res.status(400).json({ 
-                status: false, 
-                message: 'ID parameter diperlukan' 
+            return res.status(400).json({
+                status: false,
+                message: 'ID parameter diperlukan'
             });
         }
-        
+
         const result = await detailMember(id);
         res.json({
             status: true,
@@ -358,6 +407,41 @@ app.get('/api/jkt48/member/:id', async (req, res) => {
     } catch (error) {
         handleError(res, error);
     }
+});
+
+// Murotal MP3 endpoint
+app.get('/api/getMp3Murotal', async (req, res) => {
+    try {
+        const result = await getMp3Murotal();
+        res.json({
+            status: true,
+            result
+        });
+    } catch (error) {
+        handleError(res, error);
+    }
+});
+
+// Surah Names endpoint
+app.get('/api/surahNames', async (req, res) => {
+    try {
+        const result = surahNames;
+        res.json({
+            status: true,
+            result
+        });
+    } catch (error) {
+        handleError(res, error);
+    }
+});
+
+
+// Handle 404 Not Found
+app.use((req, res) => {
+    res.status(404).json({
+        status: false,
+        message: 'Endpoint tidak ditemukan'
+    });
 });
 
 // Start server
