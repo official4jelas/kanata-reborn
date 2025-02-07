@@ -43,12 +43,6 @@ export async function systemSpec() {
     });
     OS += `📉 *CPU Usage*: ${cpuLoad.toFixed(2)}%\n\n`;
 
-    // Informasi IO Bandwidth (Disk Activity)
-    const diskIo = await si.disksIO();
-    OS += `💽 *Disk Activity*:\n`;
-    OS += `   📥 *Read*: ${(diskIo.rIO / (1024 ** 2)).toFixed(2)} MB\n`;
-    OS += `   📤 *Write*: ${(diskIo.wIO / (1024 ** 2)).toFixed(2)} MB\n\n`;
-
     // Informasi Jaringan
     const networkStats = await si.networkStats();
     const networkInterfaces = os.networkInterfaces();

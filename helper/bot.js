@@ -1,4 +1,3 @@
-// import { makeWASocket, fetchLatestBaileysVersion, makeCacheableSignalKeyStore, makeInMemoryStore, useMultiFileAuthState, DisconnectReason, Browsers } from "@seaavey/baileys";
 import {
     makeWASocket,
     fetchLatestBaileysVersion,
@@ -10,9 +9,9 @@ import {
 } from '@seaavey/baileys';
 import pino from "pino";
 import NodeCache from "node-cache";
-import chalk from 'chalk';
-import fs from 'fs-extra'; // tambah nggo file handling
+import fs from 'fs-extra';
 import { startBot } from "../main.js";
+import { logger } from './logger.js';
 
 class Kanata {
     constructor(data, io = null) {
@@ -23,206 +22,162 @@ class Kanata {
     }
 
     async start() {
-        const msgRetryCounterCache = new NodeCache();
-        const useStore = this.useStore;
-        const MAIN_LOGGER = pino({
-            timestamp: () => `,"time":"${new Date().toJSON()}"`,
-        });
+        logger.showBanner();
+        const loadingProgress = logger.progress.start('Initializing Kanata Bot...');
 
-        const logger = MAIN_LOGGER.child({});
-        logger.level = "silent";
+        try {
+            const msgRetryCounterCache = new NodeCache();
+            const useStore = this.useStore;
 
-        const store = useStore ? makeInMemoryStore({ logger }) : undefined;
-        store?.readFromFile(`store-${this.sessionId}.json`);
+            // Configure loggers
+            const MAIN_LOGGER = pino({
+                timestamp: () => `,"time":"${new Date().toJSON()}"`,
+            });
+            const pLogger = MAIN_LOGGER.child({});
+            pLogger.level = "silent";
 
-        setInterval(() => {
-            store?.writeToFile(`store-${this.sessionId}.json`);
-        }, 10000 * 6);
+            // Initialize store
+            const store = useStore ? makeInMemoryStore({ logger: pLogger }) : undefined;
+            if (store) {
+                store.readFromFile(`store-${this.sessionId}.json`);
+                setInterval(() => {
+                    store.writeToFile(`store-${this.sessionId}.json`);
+                }, 10000 * 6);
+            }
 
-        const P = pino({
-            level: "silent",
-        });
-        let { state, saveCreds } = await useMultiFileAuthState(this.sessionId);
-        let { version, isLatest } = await fetchLatestBaileysVersion();
-        const sock = makeWASocket({
-            version,
-            logger: P,
-            printQRInTerminal: false,
-            browser: Browsers.macOS("Safari"),
-            auth: {
-                creds: state.creds,
-                keys: makeCacheableSignalKeyStore(state.keys, P),
-            },
-            msgRetryCounterCache,
-            connectOptions: {
-                maxRetries: 5,
-                keepAlive: true,
-            },
-        });
+            // Initialize authentication
+            const P = pino({ level: "silent" });
+            let { state, saveCreds } = await useMultiFileAuthState(this.sessionId);
+            let { version, isLatest } = await fetchLatestBaileysVersion();
 
-        store?.bind(sock.ev);
+            logger.progress.stop(loadingProgress);
+            logger.info(`Using Baileys version: ${version} (Latest: ${isLatest})`);
 
-        sock.ev.on("creds.update", saveCreds);
+            // Create socket connection
+            const sock = makeWASocket({
+                version,
+                logger: P,
+                printQRInTerminal: false,
+                browser: Browsers.macOS("Safari"),
+                auth: {
+                    creds: state.creds,
+                    keys: makeCacheableSignalKeyStore(state.keys, P),
+                },
+                msgRetryCounterCache,
+                connectOptions: {
+                    maxRetries: 5,
+                    keepAlive: true,
+                },
+            });
 
-        // Tambah mekanisme retry jika koneksi gagal pas request pairing code
-        if (!sock.authState.creds.registered) {
-            console.log(chalk.yellowBright("Menunggu Pairing Code"));
-            globalThis.io.emit("broadcastMessage", `Menunggu Pairing Code`);
-            const number = this.phoneNumber;
-            const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+            // Bind store and credentials
+            store?.bind(sock.ev);
+            sock.ev.on("creds.update", saveCreds);
 
-            let retryCount = 0;
-            const maxRetries = 1;
+            // Handle pairing code
+            if (!sock.authState.creds.registered) {
+                logger.connection.connecting("Waiting for pairing code...");
+                this.io?.emit("broadcastMessage", `Waiting for pairing code...`);
 
-            while (retryCount < maxRetries) {
-                try {
-                    await delay(6000);
-                    const code = await sock.requestPairingCode(number);
-                    console.log(chalk.green("Kode Pairing: "), chalk.bgGreen.black(code));
-                    globalThis.io.emit("broadcastMessage", "Koneksi terhubung");
-                    globalThis.io.emit("pairCode", `${code}`);
-                    break; // Kalo sukses, break loop
-                } catch (err) {
-                    retryCount++;
-                    if (retryCount >= maxRetries) {
-                        await fs.remove(`./${this.sessionId}`);
-                        await startBot();
+                const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+                let retryCount = 0;
+                const maxRetries = 1;
+
+                while (retryCount < maxRetries) {
+                    try {
+                        await delay(6000);
+                        const code = await sock.requestPairingCode(this.phoneNumber);
+                        logger.connection.pairing(code);
+                        this.io?.emit("pairCode", `${code}`);
+                        break;
+                    } catch (err) {
+                        retryCount++;
+                        if (retryCount >= maxRetries) {
+                            logger.error("Failed to get pairing code, removing session and restarting...");
+                            await fs.remove(`./${this.sessionId}`);
+                            await startBot();
+                        }
                     }
                 }
             }
-        }
 
-        // console.log('itu', this)
-        sock.ev.on("connection.update", async (update) => {
-            const { connection, lastDisconnect } = update;
-            // console.log('ini', this)
-            if (connection === "connecting") {
-                console.log(chalk.blue("Memulai koneksi soket"));
-                globalThis.io.emit("broadcastMessage", "Memulai koneksi soket");
-            } else if (connection === "open") {
-                console.log(chalk.green("Soket terhubung"));
-                globalThis.io.emit("broadcastMessage", "Soket terhubung");
-            } else if (connection === "close") {
-                console.log(chalk.red("Koneksi terputus, mencoba kembali..."));
-                globalThis.io.emit("broadcastMessage", "Koneksi terputus, mencoba kembali...");
-                const reason = lastDisconnect?.error?.output?.statusCode;
+            // Handle connection updates
+            sock.ev.on("connection.update", async (update) => {
+                const { connection, lastDisconnect } = update;
 
-                if (reason === DisconnectReason.loggedOut) {
-                    console.log(chalk.red("Sesi ora valid, bakal dihapus..."));
-                    globalThis.io.emit("broadcastMessage", "Sesi ora valid, bakal dihapus...");
+                switch (connection) {
+                    case "connecting":
+                        logger.connection.connecting("Connecting to WhatsApp...");
+                        this.io?.emit("broadcastMessage", "Connecting...");
+                        break;
 
-                    // Hapus folder sesi kalo sesi logout
-                    await fs.remove(`./${this.sessionId}`);
-                    console.log(chalk.yellow(`Folder sesi ${this.sessionId} dihapus, login ulang...`));
-                    globalThis.io.emit("broadcastMessage", `Folder sesi ${this.sessionId} dihapus, login ulang...`);
+                    case "open":
+                        logger.connection.connected("Socket Connected!");
+                        this.io?.emit("broadcastMessage", "Socket Connected!");
+                        break;
 
+                    case "close":
+                        logger.connection.disconnected("Connection lost, attempting to reconnect...");
+                        this.io?.emit("broadcastMessage", "Connection lost, attempting to reconnect...");
 
-                    // Login ulang tanpa nge-delay
-                    console.log(chalk.green("Login ulang berhasil. Eksekusi tugas selanjutnya..."));
-                    globalThis.io.emit("broadcastMessage", `Login ulang berhasil. Eksekusi tugas selanjutnya...`);
-                    await startBot();
-                } else {
-                    console.log(chalk.red("Koneksi terputus, mencoba kembali..."));
-                    globalThis.io.emit("broadcastMessage", `Koneksi terputus, mencoba kembali...`);
-                    await startBot();
+                        const reason = lastDisconnect?.error?.output?.statusCode;
+                        if (reason === DisconnectReason.loggedOut) {
+                            logger.error("Invalid session, removing session and restarting...");
+                            this.io?.emit("broadcastMessage", "Invalid session, restarting...");
+                            await fs.remove(`./${this.sessionId}`);
+                            logger.info(`Session ${this.sessionId} removed!`);
+                            await startBot();
+                        } else {
+                            logger.system("Restarting connection...");
+                            await startBot();
+                        }
+                        break;
                 }
-            }
-        });
+            });
 
-        // sock.ev.on("connection.update", async update => {
-        //     const { connection, lastDisconnect } = update;
-        //     if (connection === "connecting") {
-        //         console.log(chalk.blue("Memulai koneksi soket"));
-        //     } else if (connection === "open") {
-        //         console.log(chalk.green("Soket terhubung"));
-        //     } else if (connection === "close") {
-        //         const reason = lastDisconnect?.error?.output?.statusCode;
-
-        //         if (reason === DisconnectReason.loggedOut) {
-        //             console.log(chalk.red("Sesi ora valid, bakal dihapus..."));
-
-        //             // Hapus folder sesi kalo sesi logout
-        //             await fs.remove(`./${this.sessionId}`);
-        //             console.log(chalk.yellow(`Folder sesi ${this.sessionId} dihapus, login ulang...`));
-
-        //             // Login ulang tanpa nge-delay
-        //             console.log(chalk.green("Login ulang berhasil. Eksekusi tugas selanjutnya..."));
-        //             await startBot();
-        //         } else {
-        //             console.log(chalk.red("Koneksi terputus, mencoba kembali..."));
-        //             await startBot();
-        //         }
-        //     }
-        // });
-
-        return sock;
+            return sock;
+        } catch (error) {
+            logger.progress.stop(loadingProgress);
+            logger.error("Failed to start Kanata Bot", error);
+            throw error;
+        }
     }
 }
 
 async function clearMessages(m) {
     try {
-        if (m === "undefined") return;
+        if (!m) return;
         let data;
-        if (m.message?.conversation) {
-            const text = m.message?.conversation.trim();
-            if (m.key.remoteJid.endsWith("g.us")) {
-                data = {
-                    chatsFrom: "group",
-                    remoteJid: m.key.remoteJid,
-                    participant: {
-                        fromMe: m.key.fromMe,
-                        number: m.key.participant,
-                        pushName: m.pushName,
-                        message: text,
-                    },
-                };
-            } else {
-                data = {
-                    chatsFrom: "private",
-                    remoteJid: m.key.remoteJid,
+        const text = m.message?.conversation?.trim() || m.message?.extendedTextMessage?.text?.trim();
+        if (!text) return m;
+
+        if (m.key.remoteJid.endsWith("g.us")) {
+            data = {
+                chatsFrom: "group",
+                remoteJid: m.key.remoteJid,
+                participant: {
                     fromMe: m.key.fromMe,
+                    number: m.key.participant,
                     pushName: m.pushName,
                     message: text,
-                };
-            }
-            if (typeof text !== "undefined") {
-                return data;
-            } else {
-                return m;
-            }
-        } else if (m.message?.extendedTextMessage) {
-            const text = m.message?.extendedTextMessage.text.trim();
-            if (m.key.remoteJid.endsWith("g.us")) {
-                data = {
-                    chatsFrom: "group",
-                    remoteJid: m.key.remoteJid,
-                    participant: {
-                        fromMe: m.key.fromMe,
-                        number: m.key.participant,
-                        pushName: m.pushName,
-                        message: text,
-                    },
-                };
-            } else {
-                data = {
-                    chatsFrom: "private",
-                    remoteJid: m.key.remoteJid,
-                    fromMe: m.key.fromMe,
-                    pushName: m.pushName,
-                    message: text,
-                };
-            }
-            if (typeof text !== "undefined") {
-                return data;
-            } else {
-                return m;
-            }
+                },
+            };
+        } else {
+            data = {
+                chatsFrom: "private",
+                remoteJid: m.key.remoteJid,
+                fromMe: m.key.fromMe,
+                pushName: m.pushName,
+                message: text,
+            };
         }
+        return data;
     } catch (err) {
-        console.log(chalk.red("Error: "), err);
+        logger.error("Error clearing messages:", err);
         return m;
     }
 }
+
 const sanitizeBotId = botId => botId.split(":")[0] + "@s.whatsapp.net";
 
 export { Kanata, clearMessages, sanitizeBotId };

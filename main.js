@@ -1,5 +1,6 @@
 import './global.js'
 import { Kanata, clearMessages } from './helper/bot.js';
+import { logger } from './helper/logger.js';
 import { groupParticipants, groupUpdate } from './lib/group.js';
 import { checkAnswer, tebakSession } from './lib/tebak/index.js';
 import { getMedia } from './helper/mediaMsg.js';
@@ -42,27 +43,26 @@ async function getPhoneNumber() {
     } catch {
         return new Promise(resolve => {
             const validatePhoneNumber = (input) => {
-                const phoneRegex = /^62\d{9,15}$/; // Nomor kudu mulai karo '62' lan minimal 10 digit
+                const phoneRegex = /^62\d{9,15}$/;
                 return phoneRegex.test(input);
             };
             const askForPhoneNumber = () => {
-                rl.question(chalk.yellow("Masukkan nomor telepon (dengan kode negara, contoh: 628xxxxx): "), input => {
+                logger.showBanner();
+                rl.question(chalk.yellowBright("Enter phone number (with country code, e.g., 628xxxxx): "), input => {
                     if (validatePhoneNumber(input)) {
+                        logger.success("Valid phone number entered!");
                         rl.close();
                         resolve(input);
                     } else {
-                        console.log(chalk.red("Nomor telepon ora valid! Pastikan dimulai dengan '62' lan isine hanya angka (minimal 10 digit)."));
-                        askForPhoneNumber(); // Ulangi nek salah
+                        logger.error("Invalid phone number! Must start with '62' and contain only numbers (minimum 10 digits).");
+                        askForPhoneNumber();
                     }
                 });
-                console.log('...')
             };
-            console.log("Selamat Datang di Kanata Bot")
             askForPhoneNumber();
         });
     }
 }
-
 async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
     if (!command) return;
     let [cmd, ...args] = "";
@@ -72,22 +72,30 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
         cmd = command.toLowerCase().substring(1).split(' ')[0];
         args = command.split(' ').slice(1)
     }
-    console.log("cmd:", cmd)
-    console.log(args)
-    const pluginsDir = path.join(__dirname, 'plugins');
-    const plugins = Object.fromEntries(
-        await Promise.all(findJsFiles(pluginsDir).map(async file => {
-            const { default: plugin, handler } = await import(pathToFileURL(file).href);
-            if (Array.isArray(handler) && handler.includes(cmd)) {
-                return [cmd, plugin];
-            }
-            return [handler, plugin];
-        }))
-    );
-    if (plugins[cmd]) {
-        await plugins[cmd]({ sock, m, id, psn: args.join(' '), sender, noTel, attf, cmd });
-    }
+    logger.message.in(command);
 
+    try {
+        const pluginsDir = path.join(__dirname, 'plugins');
+        const plugins = Object.fromEntries(
+            await Promise.all(findJsFiles(pluginsDir).map(async file => {
+                const { default: plugin, handler } = await import(pathToFileURL(file).href);
+                if (Array.isArray(handler) && handler.includes(cmd)) {
+                    return [cmd, plugin];
+                }
+                return [handler, plugin];
+            }))
+        );
+
+        if (plugins[cmd]) {
+            logger.info(`Executing command: ${cmd}`);
+            await plugins[cmd]({ sock, m, id, psn: args.join(' '), sender, noTel, attf, cmd });
+            logger.success(`Command ${cmd} executed successfully`);
+        }
+
+        logger.message.out(command);
+    } catch (error) {
+        logger.error(`Error executing command ${cmd}`, error);
+    }
 }
 
 export async function startBot() {
@@ -95,12 +103,12 @@ export async function startBot() {
     const bot = new Kanata({ phoneNumber, sessionId: globalThis.sessionName });
 
     bot.start().then(sock => {
+        logger.success('Bot started successfully!');
+        logger.divider();
         sock.ev.on('messages.upsert', async chatUpdate => {
             try {
                 const m = chatUpdate.messages[0];
-                // console.log(m)
-                // const metadata = await sock.newsletterMetadata('invite', filterCode)
-                // metadata.id
+
                 const { remoteJid } = m.key;
                 const sender = m.pushName || remoteJid;
                 const id = remoteJid;
@@ -154,16 +162,17 @@ export async function startBot() {
 
                 const chat = await clearMessages(m);
                 if (chat) {
-                    const parsedMsg = chat.chatsFrom === "private" ? chat.message : chat.participant.message;
+                    const parsedMsg = chat.chatsFrom === "private" ? chat.message : chat.participant?.message;
                     if (tebakSession.has(id)) {
                         await checkAnswer(id, parsedMsg.toLowerCase(), sock, m, noTel);
                     } else {
                         await prosesPerintah({ command: parsedMsg, sock, m, id, sender, noTel });
                     }
                 }
+                logger.info(`New message received from ${sender}`);
 
             } catch (error) {
-                console.log('Error handling message:', error);
+                logger.error('Error handling message:', error);
             }
         });
         // schedulePrayerReminders(sock, globalThis.groupJid);
@@ -174,7 +183,7 @@ export async function startBot() {
         sock.ev.on('call', (callEv) => {
             call(callEv, sock)
         })
-    }).catch(error => console.log("Error starting Bot:", error));
+    }).catch(error => logger.error('Fatal error starting bot:', error));
 
 }
 
