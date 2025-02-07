@@ -72,6 +72,7 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
         cmd = command.toLowerCase().substring(1).split(' ')[0];
         args = command.split(' ').slice(1)
     }
+    logger.info(`Pesan baru diterima dari ${m.pushName || m.participant?.pushName}`);
     logger.message.in(command);
 
     try {
@@ -92,7 +93,6 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
             logger.success(`Command ${cmd} executed successfully`);
         }
 
-        logger.message.out(command);
     } catch (error) {
         logger.error(`Error executing command ${cmd}`, error);
     }
@@ -169,7 +169,6 @@ export async function startBot() {
                         await prosesPerintah({ command: parsedMsg, sock, m, id, sender, noTel });
                     }
                 }
-                logger.info(`New message received from ${sender}`);
 
             } catch (error) {
                 logger.error('Error handling message:', error);

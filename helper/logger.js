@@ -60,11 +60,8 @@ export const logger = {
     },
     message: {
         in: (message) => {
-            console.log(`${styles.time(`[${getTimestamp()}]`)} ${styles.highlight('←')} ${styles.highlight(`Incoming: ${message}`)}`);
+            console.log(`${styles.time(`[${getTimestamp()}]`)} ${styles.highlight('←')} ${styles.highlight(`Message: ${message}`)}`);
         },
-        out: (message) => {
-            console.log(`${styles.time(`[${getTimestamp()}]`)} ${styles.highlight('→')} ${styles.highlight(`Outgoing: ${message}`)}`);
-        }
     },
     divider: () => {
         console.log(styles.system('━'.repeat(50)));
