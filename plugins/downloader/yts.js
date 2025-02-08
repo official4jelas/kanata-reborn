@@ -28,16 +28,24 @@ const ytSearchResult = async (query) => {
     hasilPencarian.forEach((hasil) => {
         sections.push({
             title: hasil.title,
-            rows: [{
-                title: "Get Video 🎥",
-                description: `${hasil.title}`,
-                id: `yd2 ${hasil.url}`
-            },
-            {
-                title: "Get Audio 🎵",
-                description: `${hasil.title}`,
-                id: `ymd ${hasil.url}`
-            }]
+
+            rows: [
+                {
+                    title: "Get Video HD 🎬",
+                    description: `${hasil.title}`,
+                    id: `yd ${hasil.url}`
+                },
+                {
+                    title: "Get Video 🎥",
+                    description: `${hasil.title}`,
+                    id: `yd2 ${hasil.url}`
+                },
+                {
+                    title: "Get Audio 🎵",
+                    description: `${hasil.title}`,
+                    id: `ymd ${hasil.url}`
+                }
+            ]
         });
     });
 
@@ -112,6 +120,10 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
             }),
             nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
                 buttons: [
+                    {
+                        name: "quick_reply",
+                        buttonParamsJson: `{"display_text":"🎬 Download Video HD","id":"yd ${result.url}"}`
+                    },
                     {
                         name: "quick_reply",
                         buttonParamsJson: `{"display_text":"📽️ Download Video","id":"yd2 ${result.url}"}`
