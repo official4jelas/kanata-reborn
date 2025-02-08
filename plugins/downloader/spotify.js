@@ -12,9 +12,9 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
     try {
         await sock.sendMessage(id, { text: '🔄 *Sedang Memproses...* Mohon tunggu sebentar...' });
         let { thumbnail, title, audio, author } = await spotifySong(psn);
-        let caption = `🎵 *Judul:* ${result.title}\n🎤 *Artis:* ${result.artist}\n⏳ `
-        await sock.sendMessage(id, { image: { url: result.thumbnail }, caption }, { quoted: m })
-        await sock.sendMessage(id, { audio: { url: result.audio }, mimetype: 'audio/mpeg' }, { quoted: m });
+        let caption = `🎵 *Judul:* ${title}\n🎤 *Artis:* ${artist}\n⏳ `
+        await sock.sendMessage(id, { image: { url: thumbnail }, caption }, { quoted: m })
+        await sock.sendMessage(id, { audio: { url: audio }, mimetype: 'audio/mpeg' }, { quoted: m });
     } catch (error) {
         await sock.sendMessage(id, { text: '❌ *Terjadi kesalahan:* \n' + error });
     }
