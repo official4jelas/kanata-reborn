@@ -23,7 +23,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
             mimetype: 'video/mp4',
             fileName: `YTDL by Kanata-${Math.floor(Math.random(2 * 5))}.png`
         }, { quoted: m });
-        await sock.sendMessage(id, { video: { url: video } });
+        // await sock.sendMessage(id, { video: { url: video } });
     } catch (error) {
         await sock.sendMessage(id, { text: '❌ *Terjadi kesalahan:* \n' + error.message });
     }
