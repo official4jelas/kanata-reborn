@@ -29,6 +29,6 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
         await sock.sendMessage(id, { audio: { url: audio }, mimetype: 'audio/mpeg', fileName: title }, { quoted: m });
 
     } catch (error) {
-        await sock.sendMessage(id, { text: '❌ Ups, terjadi kesalahan: ' + error.message });
+        await sock.sendMessage(id, { text: '❌ Ups, terjadi kesalahan: ,silahkan coba beberapa saat lagi' });
     }
 };
