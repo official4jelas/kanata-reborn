@@ -15,11 +15,12 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
                 url: psn
             }
         });
+        // console.log(data)
         // caption = '*🎬 Hasil Video YouTube:*'
         // caption += '\n📛 *Title:* ' + `*${result.title}*`;
         // caption += '\n📺 *Channel:* ' + `*${result.channel}*`;
         await sock.sendMessage(id, {
-            document: { url: data.videoSrc },
+            document: { url: data.result.videoSrc },
             mimetype: 'video/mp4',
             fileName: `YTDL by Kanata-${Math.floor(Math.random(2 * 5))}.mp4`
         }, { quoted: m });
