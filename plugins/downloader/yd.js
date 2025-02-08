@@ -21,7 +21,7 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
         await sock.sendMessage(id, {
             document: { url: data.videoSrc },
             mimetype: 'video/mp4',
-            fileName: `YTDL by Kanata-${Math.floor(Math.random(2 * 5))}.png`
+            fileName: `YTDL by Kanata-${Math.floor(Math.random(2 * 5))}.mp4`
         }, { quoted: m });
         // await sock.sendMessage(id, { video: { url: video } });
     } catch (error) {
