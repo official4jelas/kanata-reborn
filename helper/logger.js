@@ -2,7 +2,6 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 import gradient from 'gradient-string';
 
-// Konfigurasi styling konsol
 const styles = {
     success: chalk.green,
     error: chalk.red,
