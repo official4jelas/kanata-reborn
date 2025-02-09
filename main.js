@@ -14,6 +14,8 @@ import { gpt4Hika } from './lib/ai.js';
 import { schedulePrayerReminders } from './lib/jadwalshalat.js';
 import User from './database/models/User.js';
 import Group from './database/models/Group.js';
+import { checkAndInitDatabase, initializeDefaultData } from './helper/databaseChecker.js';
+import { checkCommand } from './helper/commandChecker.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -67,18 +69,15 @@ async function getPhoneNumber() {
 }
 
 async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
-    if (!command) return;
-    let [cmd, ...args] = "";
-    [cmd, ...args] = command.split(' ');
-    cmd = cmd.toLowerCase();
-    if (command.startsWith('!')) {
-        cmd = command.toLowerCase().substring(1).split(' ')[0];
-        args = command.split(' ').slice(1)
-    }
-    logger.info(`Pesan baru diterima dari ${m.pushName || m.participant?.pushName}`);
-    logger.message.in(command);
-
     try {
+        // Check command validity and initialize necessary data
+        if (!await checkCommand(command, m, noTel, id)) {
+            await sock.sendMessage(id, { 
+                text: '❌ Terjadi kesalahan saat memproses command'
+            });
+            return;
+        }
+
         // Inisialisasi pengaturan grup
         if (id.endsWith('@g.us')) {
             await Group.initGroup(id);
@@ -188,91 +187,100 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
 }
 
 export async function startBot() {
-    const phoneNumber = await getPhoneNumber();
-    const bot = new Kanata({ phoneNumber, sessionId: globalThis.sessionName });
+    try {
+        // Check and initialize database
+        await checkAndInitDatabase();
+        await initializeDefaultData();
+        
+        const phoneNumber = await getPhoneNumber();
+        const bot = new Kanata({ phoneNumber, sessionId: globalThis.sessionName });
 
-    bot.start().then(sock => {
-        logger.success('Bot started successfully!');
-        logger.divider();
-        sock.ev.on('messages.upsert', async chatUpdate => {
-            try {
-                const m = chatUpdate.messages[0];
+        bot.start().then(sock => {
+            logger.success('Bot started successfully!');
+            logger.divider();
+            sock.ev.on('messages.upsert', async chatUpdate => {
+                try {
+                    const m = chatUpdate.messages[0];
 
-                const { remoteJid } = m.key;
-                const sender = m.pushName || remoteJid;
-                const id = remoteJid;
-                const noTel = remoteJid.split('@')[0].replace(/[^0-9]/g, '');
-                if (m.message?.imageMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage) {
-                    const imageMessage = m.message?.imageMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage;
-                    const imageBuffer = await getMedia({ message: { imageMessage } });
-                    const commandImage = m.message?.imageMessage?.caption || m.message.extendedTextMessage?.text;
-                    await prosesPerintah({ command: commandImage, sock, m, id, sender, noTel, attf: imageBuffer });
-                }
-                if (m.message?.videoMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.videoMessage) {
-                    const videoMessage = m.message?.videoMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.videoMessage;
-                    const videoBuffer = await getMedia({ message: { videoMessage } });
-                    const commandVideo = m.message?.videoMessage?.caption || m.message.extendedTextMessage?.text;
-                    await prosesPerintah({ command: commandVideo, sock, m, id, sender, noTel, attf: videoBuffer });
-                }
-                if (m.message?.audioMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.audioMessage) {
-                    const audioMessage = m.message?.audioMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.audioMessage;
-                    const audioBuffer = await getMedia({ message: { audioMessage } });
-                    const commandAudio = m.message?.audioMessage?.caption || m.message.extendedTextMessage?.text;
-                    await prosesPerintah({ command: commandAudio, sock, m, id, sender, noTel, attf: audioBuffer });
-                }
-
-                if (m.message?.interactiveResponseMessage?.nativeFlowResponseMessage) {
-                    const cmd = JSON.parse(m.message.interactiveResponseMessage?.nativeFlowResponseMessage?.paramsJson);
-                    await prosesPerintah({ command: `!${cmd.id}`, sock, m, id, sender, noTel });
-                }
-                if (m.message?.templateButtonReplyMessage) {
-                    const cmd = m.message?.templateButtonReplyMessage?.selectedId;
-                    await prosesPerintah({ command: `!${cmd}`, sock, m, id, sender, noTel });
-                }
-                if (m.message?.buttonsResponseMessage) {
-                    const cmd = m.message?.buttonsResponseMessage?.selectedButtonId;
-                    await prosesPerintah({ command: `!${cmd}`, sock, m, id, sender, noTel });
-                }
-                let botId = sock.user.id.replace(/:\d+/, '')
-                let botMentioned = m.message?.extendedTextMessage?.contextInfo?.participant?.includes(botId)
-                    || m.message?.extendedTextMessage?.contextInfo?.mentionedJid?.includes(botId)
-                let fullmessage = m.message?.conversation || m.message?.extendedTextMessage?.text
-                    || m.message?.extendedTextMessage?.contextInfo
-                let ctx = m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.conversation || ''
-                // auto AI mention
-                if (botMentioned) {
-                    try {
-                        await sock.sendMessage(id, { text: await gpt4Hika({ prompt: `${fullmessage}  ${ctx}`, id }) })
-                    } catch (error) {
-                        await sock.sendMessage(id, { text: 'ups,ada yang salah' })
-
+                    const { remoteJid } = m.key;
+                    const sender = m.pushName || remoteJid;
+                    const id = remoteJid;
+                    const noTel = remoteJid.split('@')[0].replace(/[^0-9]/g, '');
+                    if (m.message?.imageMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage) {
+                        const imageMessage = m.message?.imageMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage;
+                        const imageBuffer = await getMedia({ message: { imageMessage } });
+                        const commandImage = m.message?.imageMessage?.caption || m.message.extendedTextMessage?.text;
+                        await prosesPerintah({ command: commandImage, sock, m, id, sender, noTel, attf: imageBuffer });
                     }
-                }
-
-                const chat = await clearMessages(m);
-                if (chat) {
-                    const parsedMsg = chat.chatsFrom === "private" ? chat.message : chat.participant?.message;
-                    if (tebakSession.has(id)) {
-                        await checkAnswer(id, parsedMsg.toLowerCase(), sock, m, noTel);
-                    } else {
-                        await prosesPerintah({ command: parsedMsg, sock, m, id, sender, noTel });
+                    if (m.message?.videoMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.videoMessage) {
+                        const videoMessage = m.message?.videoMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.videoMessage;
+                        const videoBuffer = await getMedia({ message: { videoMessage } });
+                        const commandVideo = m.message?.videoMessage?.caption || m.message.extendedTextMessage?.text;
+                        await prosesPerintah({ command: commandVideo, sock, m, id, sender, noTel, attf: videoBuffer });
                     }
+                    if (m.message?.audioMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.audioMessage) {
+                        const audioMessage = m.message?.audioMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.audioMessage;
+                        const audioBuffer = await getMedia({ message: { audioMessage } });
+                        const commandAudio = m.message?.audioMessage?.caption || m.message.extendedTextMessage?.text;
+                        await prosesPerintah({ command: commandAudio, sock, m, id, sender, noTel, attf: audioBuffer });
+                    }
+
+                    if (m.message?.interactiveResponseMessage?.nativeFlowResponseMessage) {
+                        const cmd = JSON.parse(m.message.interactiveResponseMessage?.nativeFlowResponseMessage?.paramsJson);
+                        await prosesPerintah({ command: `!${cmd.id}`, sock, m, id, sender, noTel });
+                    }
+                    if (m.message?.templateButtonReplyMessage) {
+                        const cmd = m.message?.templateButtonReplyMessage?.selectedId;
+                        await prosesPerintah({ command: `!${cmd}`, sock, m, id, sender, noTel });
+                    }
+                    if (m.message?.buttonsResponseMessage) {
+                        const cmd = m.message?.buttonsResponseMessage?.selectedButtonId;
+                        await prosesPerintah({ command: `!${cmd}`, sock, m, id, sender, noTel });
+                    }
+                    let botId = sock.user.id.replace(/:\d+/, '')
+                    let botMentioned = m.message?.extendedTextMessage?.contextInfo?.participant?.includes(botId)
+                        || m.message?.extendedTextMessage?.contextInfo?.mentionedJid?.includes(botId)
+                    let fullmessage = m.message?.conversation || m.message?.extendedTextMessage?.text
+                        || m.message?.extendedTextMessage?.contextInfo
+                    let ctx = m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.conversation || ''
+                    // auto AI mention
+                    if (botMentioned) {
+                        try {
+                            await sock.sendMessage(id, { text: await gpt4Hika({ prompt: `${fullmessage}  ${ctx}`, id }) })
+                        } catch (error) {
+                            await sock.sendMessage(id, { text: 'ups,ada yang salah' })
+
+                        }
+                    }
+
+                    const chat = await clearMessages(m);
+                    if (chat) {
+                        const parsedMsg = chat.chatsFrom === "private" ? chat.message : chat.participant?.message;
+                        if (tebakSession.has(id)) {
+                            await checkAnswer(id, parsedMsg.toLowerCase(), sock, m, noTel);
+                        } else {
+                            await prosesPerintah({ command: parsedMsg, sock, m, id, sender, noTel });
+                        }
+                    }
+
+                } catch (error) {
+                    logger.error('Error handling message:', error);
                 }
-
-            } catch (error) {
-                logger.error('Error handling message:', error);
-            }
-        });
-        // schedulePrayerReminders(sock, globalThis.groupJid);
+            });
+            // schedulePrayerReminders(sock, globalThis.groupJid);
 
 
-        sock.ev.on('group-participants.update', ev => groupParticipants(ev, sock));
-        sock.ev.on('groups.update', ev => groupUpdate(ev, sock));
-        sock.ev.on('call', (callEv) => {
-            call(callEv, sock)
-        })
-    }).catch(error => logger.error('Fatal error starting bot:', error));
+            sock.ev.on('group-participants.update', ev => groupParticipants(ev, sock));
+            sock.ev.on('groups.update', ev => groupUpdate(ev, sock));
+            sock.ev.on('call', (callEv) => {
+                call(callEv, sock)
+            })
+        }).catch(error => logger.error('Fatal error starting bot:', error));
 
+    } catch (error) {
+        console.error('Failed to start bot:', error);
+        process.exit(1);
+    }
 }
 
 startBot();

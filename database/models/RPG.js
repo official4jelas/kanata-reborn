@@ -1,5 +1,6 @@
 import db from '../config.js';
 import moment from 'moment';
+import User from './User.js';
 
 class RPG {
     static async initPlayer(userId) {
