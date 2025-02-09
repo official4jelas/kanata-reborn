@@ -13,6 +13,7 @@ import { call } from './lib/call.js';
 import { gpt4Hika } from './lib/ai.js';
 import { schedulePrayerReminders } from './lib/jadwalshalat.js';
 import User from './database/models/User.js';
+import Group from './database/models/Group.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -64,6 +65,7 @@ async function getPhoneNumber() {
         });
     }
 }
+
 async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
     if (!command) return;
     let [cmd, ...args] = "";
@@ -77,6 +79,70 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
     logger.message.in(command);
 
     try {
+        // Inisialisasi pengaturan grup
+        if (id.endsWith('@g.us')) {
+            await Group.initGroup(id);
+            const settings = await Group.getSettings(id);
+
+            // Cek spam
+            if (settings.antispam) {
+                const spamCheck = await Group.checkSpam(noTel, id);
+                if (spamCheck.isSpam) {
+                    await Group.incrementWarning(noTel, id);
+                    if (spamCheck.warningCount >= 3) {
+                        await sock.groupParticipantsUpdate(id, [noTel], 'remove');
+                        await sock.sendMessage(id, { 
+                            text: `@${noTel.split('@')[0]} telah dikeluarkan karena spam`,
+                            mentions: [noTel]
+                        });
+                        return;
+                    }
+                    await sock.sendMessage(id, { 
+                        text: `⚠️ @${noTel.split('@')[0]} Warning ke-${spamCheck.warningCount + 1} untuk spam!`,
+                        mentions: [noTel]
+                    });
+                    return;
+                }
+            }
+
+            // Cek antilink
+            if (settings.antilink && (m.message?.conversation?.includes('http') || 
+                m.message?.extendedTextMessage?.text?.includes('http'))) {
+                const groupAdmins = await getGroupAdmins({ sock, id });
+                if (!groupAdmins.includes(noTel)) {
+                    await sock.groupParticipantsUpdate(id, [noTel], 'remove');
+                    await sock.sendMessage(id, { 
+                        text: `@${noTel.split('@')[0]} telah dikeluarkan karena mengirim link`,
+                        mentions: [noTel]
+                    });
+                    return;
+                }
+            }
+
+            // Cek antitoxic (contoh sederhana)
+            if (settings.antitoxic) {
+                const toxicWords = ['anjing', 'babi', 'bangsat', 'kontol']; // Tambahkan kata-kata toxic
+                const message = m.message?.conversation?.toLowerCase() || 
+                              m.message?.extendedTextMessage?.text?.toLowerCase() || '';
+                
+                if (toxicWords.some(word => message.includes(word))) {
+                    await sock.sendMessage(id, { 
+                        text: `⚠️ @${noTel.split('@')[0]} Tolong jaga kata-kata!`,
+                        mentions: [noTel]
+                    });
+                    return;
+                }
+            }
+
+            // Cek only admin
+            if (settings.only_admin) {
+                const groupAdmins = await getGroupAdmins({ sock, id });
+                if (!groupAdmins.includes(noTel)) {
+                    return;
+                }
+            }
+        }
+
         // Cek dan buat user jika belum ada
         let user = await User.getUser(noTel);
         if (!user) {
@@ -117,7 +183,7 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
         }
 
     } catch (error) {
-        logger.error(`Error executing command ${cmd}`, error);
+        logger.error(`Error processing message`, error);
     }
 }
 
