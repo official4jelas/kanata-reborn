@@ -1,4 +1,5 @@
 import db from '../config.js';
+import moment from 'moment';
 
 class RPG {
     static async initPlayer(userId) {
@@ -390,6 +391,217 @@ class RPG {
                     quantity,
                     totalEarned
                 });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static async enterDungeon(userId, dungeonName) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const stats = await this.getStats(userId);
+                const dungeon = await this.getDungeonByName(dungeonName);
+                
+                if (stats.level < dungeon.min_level) {
+                    reject(new Error(`Level kamu terlalu rendah! Minimal level ${dungeon.min_level}`));
+                    return;
+                }
+
+                // Cek cooldown
+                const lastDungeon = await this.getLastDungeonTime(userId);
+                if (lastDungeon) {
+                    const cooldownEnd = moment(lastDungeon).add(dungeon.cooldown_minutes, 'minutes');
+                    if (moment().isBefore(cooldownEnd)) {
+                        const remaining = moment.duration(cooldownEnd.diff(moment()));
+                        reject(new Error(`Dungeon masih cooldown! Tunggu ${remaining.minutes()} menit lagi`));
+                        return;
+                    }
+                }
+
+                // Kalkulasi battle
+                const playerDamage = stats.strength - dungeon.defense;
+                const dungeonDamage = dungeon.attack - stats.defense;
+                let playerHP = stats.health;
+                let dungeonHP = dungeon.hp;
+                let battleLog = [];
+
+                while (playerHP > 0 && dungeonHP > 0) {
+                    // Player turn
+                    dungeonHP -= Math.max(1, playerDamage);
+                    battleLog.push(`⚔️ Kamu menyerang dungeon boss! (-${Math.max(1, playerDamage)} HP)`);
+                    
+                    if (dungeonHP <= 0) break;
+
+                    // Dungeon turn
+                    playerHP -= Math.max(1, dungeonDamage);
+                    battleLog.push(`💢 Boss menyerang! (-${Math.max(1, dungeonDamage)} HP)`);
+                }
+
+                // Update stats dan rewards
+                if (playerHP > 0) {
+                    // Player menang
+                    const drops = JSON.parse(dungeon.item_drops);
+                    let droppedItems = [];
+
+                    for (const [item, chance] of Object.entries(drops)) {
+                        if (Math.random() < chance) {
+                            await this.addItem(userId, item, 1);
+                            droppedItems.push(item);
+                        }
+                    }
+
+                    await this.updateDungeonStats(userId, dungeon.exp_reward, dungeon.gold_reward);
+                    
+                    resolve({
+                        win: true,
+                        battleLog,
+                        rewards: {
+                            exp: dungeon.exp_reward,
+                            gold: dungeon.gold_reward,
+                            items: droppedItems
+                        }
+                    });
+                } else {
+                    // Player kalah
+                    resolve({
+                        win: false,
+                        battleLog
+                    });
+                }
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static async learnSkill(userId, skillName) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const stats = await this.getStats(userId);
+                const skill = await this.getSkillByName(skillName);
+
+                if (stats.level < skill.min_level) {
+                    reject(new Error(`Level kamu terlalu rendah! Minimal level ${skill.min_level}`));
+                    return;
+                }
+
+                if (stats.gold < skill.price) {
+                    reject(new Error(`Gold tidak cukup! Butuh ${skill.price} gold`));
+                    return;
+                }
+
+                await this.addUserSkill(userId, skill.id);
+                await this.updateGold(userId, -skill.price);
+
+                resolve(skill);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static async useSkill(userId, skillName, targetId = null) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const stats = await this.getStats(userId);
+                const skill = await this.getSkillByName(skillName);
+                const userSkill = await this.getUserSkill(userId, skill.id);
+
+                if (!userSkill) {
+                    reject(new Error('Kamu belum mempelajari skill ini!'));
+                    return;
+                }
+
+                // Cek cooldown
+                if (userSkill.last_used) {
+                    const cooldownEnd = moment(userSkill.last_used).add(skill.cooldown_seconds, 'seconds');
+                    if (moment().isBefore(cooldownEnd)) {
+                        const remaining = moment.duration(cooldownEnd.diff(moment()));
+                        reject(new Error(`Skill masih cooldown! Tunggu ${remaining.seconds()} detik lagi`));
+                        return;
+                    }
+                }
+
+                if (stats.mana < skill.mana_cost) {
+                    reject(new Error(`Mana tidak cukup! Butuh ${skill.mana_cost} MP`));
+                    return;
+                }
+
+                // Proses efek skill
+                const effect = JSON.parse(skill.effect);
+                let result = {
+                    skillName: skill.name,
+                    effect: {}
+                };
+
+                switch (skill.type) {
+                    case 'attack':
+                        if (!targetId) {
+                            reject(new Error('Target tidak ditemukan!'));
+                            return;
+                        }
+                        await this.applyDamage(targetId, effect.damage);
+                        result.effect.damage = effect.damage;
+                        break;
+
+                    case 'support':
+                        if (effect.health) {
+                            await this.heal(userId, effect.health);
+                            result.effect.heal = effect.health;
+                        }
+                        break;
+
+                    case 'defense':
+                        await this.addTemporaryDefense(userId, effect.defense);
+                        result.effect.defense = effect.defense;
+                        break;
+                }
+
+                // Update mana dan cooldown
+                await this.updateMana(userId, -skill.mana_cost);
+                await this.updateSkillCooldown(userId, skill.id);
+
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static async getQuests(userId) {
+        return new Promise((resolve, reject) => {
+            db.all(`SELECT q.*, uq.progress, uq.completed 
+                   FROM quests q 
+                   LEFT JOIN user_quests uq ON q.id = uq.quest_id AND uq.user_id = ?
+                   WHERE q.min_level <= (SELECT level FROM rpg_stats WHERE user_id = ?)`,
+            [userId, userId],
+            (err, rows) => {
+                if (err) reject(err);
+                resolve(rows);
+            });
+        });
+    }
+
+    static async updateQuestProgress(userId, questType, amount = 1) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const quests = await this.getActiveQuests(userId, questType);
+                let completedQuests = [];
+
+                for (const quest of quests) {
+                    const newProgress = quest.progress + amount;
+                    if (newProgress >= quest.target_amount && !quest.completed) {
+                        // Quest completed
+                        await this.completeQuest(userId, quest.id);
+                        completedQuests.push(quest);
+                    } else {
+                        // Update progress
+                        await this.updateProgress(userId, quest.id, newProgress);
+                    }
+                }
+
+                resolve(completedQuests);
             } catch (error) {
                 reject(error);
             }
