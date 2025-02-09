@@ -1,6 +1,5 @@
 export const ownerNumbers = [
-    '6281234567890@s.whatsapp.net', // Ganti dengan nomor owner
-    // Tambahkan nomor owner lain jika perlu
+    '62895395590009@s.whatsapp.net',
 ];
 
 export const isOwner = (number) => {

@@ -182,7 +182,6 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
 
     try {
         // Cek apakah pesan dari bot
-        if (m.key.fromMe) return;
 
         // Inisialisasi pengaturan grup jika pesan dari grup
         if (id.endsWith('@g.us')) {
@@ -246,6 +245,8 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
                     return;
                 }
             }
+        }else{
+            if (m.key.fromMe) return;
         }
 
         // Cek dan buat user jika belum ada (untuk grup dan pribadi)
