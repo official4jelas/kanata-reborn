@@ -75,7 +75,32 @@ class Kanata {
             store?.bind(sock.ev);
             sock.ev.on("creds.update", saveCreds);
 
-            await Session.create(this.sessionId, this.phoneNumber);
+            // Handle pairing code
+            if (!sock.authState.creds.registered) {
+                logger.connection.connecting("Waiting for pairing code...");
+                this.io?.emit("broadcastMessage", `Waiting for pairing code...`);
+
+                const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+                let retryCount = 0;
+                const maxRetries = 1;
+
+                while (retryCount < maxRetries) {
+                    try {
+                        await delay(6000);
+                        const code = await sock.requestPairingCode(this.phoneNumber);
+                        logger.connection.pairing(code);
+                        this.io?.emit("pairCode", `${code}`);
+                        break;
+                    } catch (err) {
+                        retryCount++;
+                        if (retryCount >= maxRetries) {
+                            logger.error("Failed to get pairing code, removing session and restarting...");
+                            await fs.remove(`./${this.sessionId}`);
+                            await startBot();
+                        }
+                    }
+                }
+            }
 
             // Handle connection updates
             sock.ev.on("connection.update", async (update) => {
@@ -157,4 +182,3 @@ async function clearMessages(m) {
 const sanitizeBotId = botId => botId.split(":")[0] + "@s.whatsapp.net";
 
 export { Kanata, clearMessages, sanitizeBotId };
-// done
