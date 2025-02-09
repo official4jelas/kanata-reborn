@@ -13,6 +13,9 @@ import path from 'path';
 import chalk from 'chalk';
 import readline from 'readline';
 import { call } from './lib/call.js';
+import db from './database/config.js';
+import Plugin from './database/models/Plugin.js';
+import Session from './database/models/Session.js';
 
 
 const app = express()
@@ -22,6 +25,34 @@ globalThis.io = new Server(server)
 const _dirname = dirname(fileURLToPath(import.meta.url))
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Tambahkan middleware untuk handle JSON dan static files
+app.use(express.json())
+app.use(express.static(join(_dirname, 'public')))
+
+// Tambahkan routes untuk API
+app.get('/api/plugins', async (req, res) => {
+    try {
+        const plugins = await Plugin.getAll();
+        res.json(plugins);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/connections', (req, res) => {
+    try {
+        const sessions = fs.readdirSync(path.join(__dirname, 'sessions'))
+        res.json(sessions)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
+// Route untuk dashboard
+app.get('/dashboard', (req, res) => {
+    res.sendFile(join(_dirname, 'public', 'dashboard.html'))
+})
 
 // Fungsi untuk mencari semua file .js secara rekursif
 function findJsFiles(dir) {
@@ -47,7 +78,27 @@ app.get('/', (req, res) => {
     res.sendFile(join(_dirname, 'index.html'))
 })
 
+// Endpoint untuk mengubah status plugin
+app.patch('/api/plugins/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { isActive } = req.body;
+        await Plugin.updateStatus(id, isActive);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
+// Endpoint untuk sessions aktif
+app.get('/api/sessions/active', async (req, res) => {
+    try {
+        const sessions = await Session.getActive();
+        res.json(sessions);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 async function getPhoneNumber(notelp) {
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
