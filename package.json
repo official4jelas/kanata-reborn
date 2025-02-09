@@ -20,6 +20,7 @@
     "axios": "^1.7.2",
     "chalk": "^5.3.0",
     "cheerio": "^1.0.0",
+    "dotenv": "^16.4.7",
     "eventsource": "^3.0.2",
     "express": "^4.21.2",
     "ffmpeg-static": "^5.2.0",
@@ -39,7 +40,8 @@
     "sqlite3": "^5.1.7",
     "systeminformation": "^5.25.11",
     "wa-sticker-formatter": "^4.4.4",
-    "yt-search": "^2.11.1"
+    "yt-search": "^2.11.1",
+    "zip-a-folder": "^3.1.8"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"
