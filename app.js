@@ -181,7 +181,10 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
     logger.message.in(command);
 
     try {
-        // Inisialisasi pengaturan grup
+        // Cek apakah pesan dari bot
+        if (m.key.fromMe) return;
+
+        // Inisialisasi pengaturan grup jika pesan dari grup
         if (id.endsWith('@g.us')) {
             await Group.initGroup(id);
             const settings = await Group.getSettings(id);
@@ -245,7 +248,7 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
             }
         }
 
-        // Cek dan buat user jika belum ada
+        // Cek dan buat user jika belum ada (untuk grup dan pribadi)
         let user = await User.getUser(noTel);
         if (!user) {
             await User.create(noTel, m.pushName || 'User');
