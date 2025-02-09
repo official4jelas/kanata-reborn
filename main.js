@@ -12,6 +12,7 @@ import readline from 'readline';
 import { call } from './lib/call.js';
 import { gpt4Hika } from './lib/ai.js';
 import { schedulePrayerReminders } from './lib/jadwalshalat.js';
+import User from './database/models/User.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -76,6 +77,28 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
     logger.message.in(command);
 
     try {
+        // Cek dan buat user jika belum ada
+        let user = await User.getUser(noTel);
+        if (!user) {
+            await User.create(noTel, m.pushName || 'User');
+        }
+
+        // Tambah exp untuk setiap pesan (5-15 exp random)
+        const expGained = Math.floor(Math.random() * 11) + 5;
+        const expResult = await User.addExp(noTel, expGained);
+
+        // Jika naik level, kirim notifikasi
+        if (expResult.levelUp) {
+            await sock.sendMessage(id, { 
+                text: `🎉 Selamat! Level kamu naik ke level ${expResult.newLevel}!`
+            });
+        }
+
+        // Jika ada command, increment counter command
+        if (command.startsWith('!')) {
+            await User.incrementCommand(noTel);
+        }
+
         const pluginsDir = path.join(__dirname, 'plugins');
         const plugins = Object.fromEntries(
             await Promise.all(findJsFiles(pluginsDir).map(async file => {

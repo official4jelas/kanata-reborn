@@ -5,3 +5,7 @@ Ini adalah contoh API sederhana menggunakan Node.js dengan express.js yang berda
 ## Memulai
 
 Server akan berjalan secara otomatis saat memulai workspace. Untuk menjalankannya secara manual, gunakan perintah:
+
+```bash
+npm run dev
+```
