@@ -608,6 +608,126 @@ class RPG {
             }
         });
     }
+
+    static async getAllSkills() {
+        return new Promise((resolve, reject) => {
+            db.all(`SELECT * FROM skills ORDER BY min_level ASC`, [], (err, rows) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(rows.map(row => {
+                    try {
+                        row.effect = JSON.parse(row.effect);
+                    } catch (e) {
+                        console.error('Error parsing skill effect:', e);
+                        row.effect = {};
+                    }
+                    return row;
+                }));
+            });
+        });
+    }
+
+    static async getUserSkills(userId) {
+        return new Promise((resolve, reject) => {
+            db.all(`
+                SELECT s.*, us.last_used 
+                FROM skills s 
+                JOIN user_skills us ON s.id = us.skill_id 
+                WHERE us.user_id = ?
+                ORDER BY s.min_level ASC
+            `, [userId], (err, rows) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(rows.map(row => {
+                    try {
+                        row.effect = JSON.parse(row.effect);
+                    } catch (e) {
+                        console.error('Error parsing skill effect:', e);
+                        row.effect = {};
+                    }
+                    return row;
+                }));
+            });
+        });
+    }
+
+    static async getSkillByName(skillName) {
+        return new Promise((resolve, reject) => {
+            db.get(`SELECT * FROM skills WHERE name = ? COLLATE NOCASE`, [skillName], (err, row) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                if (row) {
+                    try {
+                        row.effect = JSON.parse(row.effect);
+                    } catch (e) {
+                        console.error('Error parsing skill effect:', e);
+                        row.effect = {};
+                    }
+                }
+                resolve(row);
+            });
+        });
+    }
+
+    static async hasSkill(userId, skillId) {
+        return new Promise((resolve, reject) => {
+            db.get(`SELECT 1 FROM user_skills WHERE user_id = ? AND skill_id = ?`, 
+            [userId, skillId], (err, row) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(!!row);
+            });
+        });
+    }
+
+    static async addUserSkill(userId, skillId) {
+        return new Promise((resolve, reject) => {
+            db.run(`INSERT OR IGNORE INTO user_skills (user_id, skill_id) VALUES (?, ?)`,
+            [userId, skillId], (err) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve();
+            });
+        });
+    }
+
+    static async updateSkillCooldown(userId, skillId) {
+        return new Promise((resolve, reject) => {
+            db.run(`UPDATE user_skills SET last_used = CURRENT_TIMESTAMP 
+                WHERE user_id = ? AND skill_id = ?`,
+            [userId, skillId], (err) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve();
+            });
+        });
+    }
+
+    static async getSkillCooldown(userId, skillId) {
+        return new Promise((resolve, reject) => {
+            db.get(`SELECT last_used FROM user_skills 
+                WHERE user_id = ? AND skill_id = ?`,
+            [userId, skillId], (err, row) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(row?.last_used);
+            });
+        });
+    }
 }
 
 export default RPG; 
