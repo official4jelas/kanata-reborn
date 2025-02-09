@@ -63,6 +63,34 @@ app.get('/dashboard', (req, res) => {
     res.sendFile(join(_dirname, 'public', 'dashboard.html'))
 })
 
+// Tambahkan middleware untuk handle JSON dan static files
+app.use(express.json())
+app.use(express.static(join(_dirname, 'public')))
+
+// Tambahkan routes untuk API
+app.get('/api/plugins', async (req, res) => {
+    try {
+        const plugins = await Plugin.getAll();
+        res.json(plugins);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/connections', (req, res) => {
+    try {
+        const sessions = fs.readdirSync(path.join(__dirname, 'sessions'))
+        res.json(sessions)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
+// Route untuk dashboard
+app.get('/dashboard', (req, res) => {
+    res.sendFile(join(_dirname, 'public', 'dashboard.html'))
+})
+
 // Fungsi untuk mencari semua file .js secara rekursif
 function findJsFiles(dir) {
     let results = [];
