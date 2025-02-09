@@ -8,3 +8,4 @@ db.*
 *.tar.gz
 *.rar
 global.js
+*.db
