@@ -70,8 +70,22 @@ async function getPhoneNumber() {
 
 async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
     try {
+        if (!command) return;
+        
+        // Parse command dan args
+        let cmd = '';
+        let args = [];
+        
+        if (command.startsWith('!')) {
+            cmd = command.toLowerCase().substring(1).split(' ')[0];
+            args = command.split(' ').slice(1);
+        } else {
+            [cmd, ...args] = command.split(' ');
+            cmd = cmd.toLowerCase();
+        }
+
         // Check command validity and initialize necessary data
-        if (!await checkCommand(command, m, noTel, id)) {
+        if (!await checkCommand(cmd, m, noTel, id)) {
             await sock.sendMessage(id, { 
                 text: '❌ Terjadi kesalahan saat memproses command'
             });
