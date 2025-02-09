@@ -157,3 +157,4 @@ async function clearMessages(m) {
 const sanitizeBotId = botId => botId.split(":")[0] + "@s.whatsapp.net";
 
 export { Kanata, clearMessages, sanitizeBotId };
+// done
