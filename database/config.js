@@ -48,12 +48,12 @@ function initializeTables() {
             )`);
 
             // Tabel sessions
+            db.run(`DROP TABLE IF EXISTS sessions`);
             db.run(`CREATE TABLE IF NOT EXISTS sessions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 session_id TEXT UNIQUE,
-                phone TEXT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                last_active DATETIME
+                session_data TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )`);
 
             // Tabel commands
@@ -291,5 +291,43 @@ function initializeTables() {
         console.error('Error initializing tables:', error);
     }
 }
+
+// Fungsi untuk membersihkan sessions yang tidak valid
+export const cleanSessions = () => {
+    return new Promise((resolve, reject) => {
+        try {
+            db.run(`DELETE FROM sessions WHERE session_data IS NULL`, [], (err) => {
+                if (err) reject(err);
+                resolve();
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
+// Update fungsi untuk menyimpan session
+export const saveSession = (sessionId, sessionData) => {
+    return new Promise((resolve, reject) => {
+        db.run(`INSERT OR REPLACE INTO sessions (session_id, session_data) VALUES (?, ?)`,
+            [sessionId, JSON.stringify(sessionData)],
+            (err) => {
+                if (err) reject(err);
+                resolve();
+            });
+    });
+};
+
+// Fungsi untuk mendapatkan session
+export const getSession = (sessionId) => {
+    return new Promise((resolve, reject) => {
+        db.get(`SELECT session_data FROM sessions WHERE session_id = ?`,
+            [sessionId],
+            (err, row) => {
+                if (err) reject(err);
+                resolve(row ? JSON.parse(row.session_data) : null);
+            });
+    });
+};
 
 export default db;
