@@ -4,14 +4,10 @@ import { fileURLToPath, pathToFileURL } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-// Mundur sak level saka folder helper kanggo akses plugins
 const pluginsDir = path.join(__dirname, '../plugins');
 
-// Fungsi kanggo nggoleki kabeh file .js lan ngelompokke miturut subfolder
 async function loadPlugins(dir) {
     let plugins = {};
-
     const list = fs.readdirSync(dir);
 
     for (const file of list) {
@@ -19,20 +15,15 @@ async function loadPlugins(dir) {
         const stat = fs.statSync(filePath);
 
         if (stat && stat.isDirectory()) {
-
-
-            // Yen iku folder, rekursif golek file .js ning subfolder
             const subPlugins = await loadPlugins(filePath);
-            const folderName = path.basename(filePath); // Nentokake jeneng folder
+            const folderName = path.basename(filePath);
             if (folderName === 'hidden') {
-                // Yen iku folder sing dikecualikan, skip
-                console.log(`Subfolder ${folderName} dikecualikan`);
+                console.log(`📂 Subfolder ${folderName} dikecualikan.`);
                 continue;
             }
             if (!plugins[folderName]) {
                 plugins[folderName] = [];
             }
-            // Gabungake subPlugins ing folder utama
             Object.entries(subPlugins).forEach(([subFolder, pluginFiles]) => {
                 if (!plugins[subFolder]) {
                     plugins[subFolder] = [];
@@ -40,51 +31,32 @@ async function loadPlugins(dir) {
                 plugins[subFolder].push(...pluginFiles);
             });
         } else if (file.endsWith('.js')) {
-            // Yen iku file .js, load file
             const { default: plugin, description, handler } = await import(pathToFileURL(filePath).href);
-            const folderName = path.basename(path.dirname(filePath)); // Nentokake folder induk
+            const folderName = path.basename(path.dirname(filePath));
             if (!plugins[folderName]) {
                 plugins[folderName] = [];
             }
-            // Tambahake info file lan description
             plugins[folderName].push({
-                subfolder: folderName, // Jeneng subfolder
-                file: file, // Nama file
-                handler: handler || 'Belum ada handler', // Deskripsi
-                description: description || 'Belum ada deskripsi', // Deskripsi
+                subfolder: folderName,
+                file,
+                handler: handler || '⚠️ Belum ada handler',
+                description: description || 'ℹ️ Belum ada deskripsi',
             });
         }
     }
-
     return plugins;
 }
 
-// Fungsi kanggo generate help message otomatis
 export async function helpMessage() {
     const plugins = await loadPlugins(pluginsDir);
-    // console.log(plugins)
-
-    let caption = "🌟 Hai, aku Kanata! Senang sekali bisa membantu kamu hari ini. Berikut adalah daftar perintah yang bisa kamu gunakan:\n";
-
-    for (const sonata in plugins) {
-        // Nambah header folder
-        caption += `❏┄┅━┅┄〈 〘 ${sonata.toUpperCase()} 〙\n`;
-
-        // Nambah file-file ning folder kasebut
-        plugins[sonata].forEach(plugin => {
-            const command = plugin.handler; 
-            caption += `- *${command}*\n`;
+    let caption = "🌟 Hai, aku Kanata! Berikut daftar perintah yang tersedia:\n\n";
+    for (const category in plugins) {
+        caption += `📂 *${category.toUpperCase()}*\n`;
+        plugins[category].forEach(plugin => {
+            caption += `- 🛠 *${plugin.handler}* \n`;
         });
-
         caption += '\n';
     }
-    caption += 'Klik list untuk detail lebih lanjut';
-
+    caption += "Ketik perintah yang kamu butuhkan! 🚀";
     return { caption, plugins };
 }
-
-// Contoh panggilan fungsi helpMessage kanggo tes
-// (async () => {
-//     const { caption } = await helpMessage();
-//     console.log(caption);
-// })();

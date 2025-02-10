@@ -1,30 +1,44 @@
 import { hikaru } from "../../helper/hikaru.js";
 import loadAssets from "../../helper/loadAssets.js";
-export const handler = 'praise'
-export const description = 'Github Praise'
-export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
-    if (!psn) return sock.sendMessage(id, { text: "Masukkan username githubmu" })
+
+export const handler = "praise";
+export const description = "Github Praise";
+
+export default async ({ sock, m, id, psn }) => {
+    if (!psn) {
+        return sock.sendMessage(id, {
+            text: "⚠️ Masukkan username GitHub kamu untuk mendapatkan pujian!"
+        });
+    }
+    
     try {
-        const { data } = await hikaru('aiexperience/github/praising', {
+        const { data } = await hikaru("aiexperience/github/praising", {
             params: {
                 username: psn,
                 profile: true,
-                language: 'id'
+                language: "id"
             }
         });
-        let caption = "";
-        caption += 'Nama \t\t: ' + data.result.profile.name || 'Belum diatur';
-        caption += '\nBio \t\t\t: ' + data.result.profile.bio  || 'Belum diatur';
-        caption += '\nCompany \t: ' + data.result.profile.company  || 'Belum diatur';
-        caption += '\nFollowers \t: ' + data.result.profile.followers || 'Gak tau';
-        caption += '\nFollowing \t: ' + data.result.profile.following || 'Gak tau';
-        caption += '\nPublic Repo \t: ' + data.result.profile.public_repos || 'Belum bikin';
-        caption += '\n\n' + data.result.praising;
-
-
-        await sock.sendMessage(id, { image: { url:  await loadAssets('github.png', 'image') }, caption }, { quoted: m });
-
+        
+        const profile = data.result.profile;
+        const caption = `🎉 *GitHub Praise* 🎉\n\n`
+            + `👤 *Nama:* ${profile.name || "Belum diatur"}\n`
+            + `📜 *Bio:* ${profile.bio || "Belum diatur"}\n`
+            + `🏢 *Perusahaan:* ${profile.company || "Belum diatur"}\n`
+            + `👥 *Followers:* ${profile.followers || "Gak tau"}\n`
+            + `👤 *Following:* ${profile.following || "Gak tau"}\n`
+            + `📂 *Public Repo:* ${profile.public_repos || "Belum bikin"}\n\n`
+            + `💬 ${data.result.praising}`;
+        
+        const imageUrl = await loadAssets("github.png", "image");
+        await sock.sendMessage(id, {
+            image: { url: imageUrl },
+            caption
+        }, { quoted: m });
     } catch (error) {
-        await sock.sendMessage(id, { text: 'Username ngga ketemu nih,coba teliti lagi yaa.' })
+        await sock.sendMessage(id, {
+            text: "❌ Username tidak ditemukan. Coba periksa kembali ya!"
+        });
+        console.error("Error fetching GitHub Praise:", error);
     }
 };
