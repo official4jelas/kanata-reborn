@@ -195,13 +195,13 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
                     await Group.incrementWarning(noTel, id);
                     if (spamCheck.warningCount >= 3) {
                         await sock.groupParticipantsUpdate(id, [noTel], 'remove');
-                        await sock.sendMessage(id, { 
+                        await sock.sendMessage(id, {
                             text: `@${noTel.split('@')[0]} telah dikeluarkan karena spam`,
                             mentions: [noTel]
                         });
                         return;
                     }
-                    await sock.sendMessage(id, { 
+                    await sock.sendMessage(id, {
                         text: `⚠️ @${noTel.split('@')[0]} Warning ke-${spamCheck.warningCount + 1} untuk spam!`,
                         mentions: [noTel]
                     });
@@ -210,12 +210,12 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
             }
 
             // Cek antilink
-            if (settings.antilink && (m.message?.conversation?.includes('http') || 
+            if (settings.antilink && (m.message?.conversation?.includes('http') ||
                 m.message?.extendedTextMessage?.text?.includes('http'))) {
                 const groupAdmins = await getGroupAdmins({ sock, id });
                 if (!groupAdmins.includes(noTel)) {
                     await sock.groupParticipantsUpdate(id, [noTel], 'remove');
-                    await sock.sendMessage(id, { 
+                    await sock.sendMessage(id, {
                         text: `@${noTel.split('@')[0]} telah dikeluarkan karena mengirim link`,
                         mentions: [noTel]
                     });
@@ -226,11 +226,11 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
             // Cek antitoxic (contoh sederhana)
             if (settings.antitoxic) {
                 const toxicWords = ['anjing', 'babi', 'bangsat', 'kontol']; // Tambahkan kata-kata toxic
-                const message = m.message?.conversation?.toLowerCase() || 
-                              m.message?.extendedTextMessage?.text?.toLowerCase() || '';
-                
+                const message = m.message?.conversation?.toLowerCase() ||
+                    m.message?.extendedTextMessage?.text?.toLowerCase() || '';
+
                 if (toxicWords.some(word => message.includes(word))) {
-                    await sock.sendMessage(id, { 
+                    await sock.sendMessage(id, {
                         text: `⚠️ @${noTel.split('@')[0]} Tolong jaga kata-kata!`,
                         mentions: [noTel]
                     });
@@ -245,7 +245,7 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
                     return;
                 }
             }
-        }else{
+        } else {
             if (m.key.fromMe) return;
         }
 
@@ -261,7 +261,7 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
 
         // Jika naik level, kirim notifikasi
         if (expResult.levelUp) {
-            await sock.sendMessage(id, { 
+            await sock.sendMessage(id, {
                 text: `🎉 Selamat! Level kamu naik ke level ${expResult.newLevel}!`
             });
         }
@@ -294,8 +294,8 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
 }
 export async function startBot() {
     const phoneNumber = await getPhoneNumber();
-    const bot = new Kanata({ 
-        phoneNumber, 
+    const bot = new Kanata({
+        phoneNumber,
         sessionId: globalThis.sessionName,
         pairingCode: true // Tambahkan opsi ini untuk mengaktifkan pairing code
     });
@@ -310,7 +310,7 @@ export async function startBot() {
                 const { remoteJid } = m.key;
                 const sender = m.pushName || remoteJid;
                 const id = remoteJid;
-                const noTel = remoteJid.split('@')[0].replace(/[^0-9]/g, '');
+                const noTel = (id.endsWith('@g.us')) ? m.key.participant.split('@')[0].replace(/[^0-9]/g, '') : remoteJid.split('@')[0].replace(/[^0-9]/g, '');
                 if (m.message?.imageMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage) {
                     const imageMessage = m.message?.imageMessage || m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage;
                     const imageBuffer = await getMedia({ message: { imageMessage } });
@@ -386,7 +386,7 @@ export async function startBot() {
 
 globalThis.io.on('connection', (socket) => {
     logger.info('Client connected');
-    
+
     socket.on('generateQR', async (phoneNumber) => {
         try {
             logger.info(`Received phone number: ${phoneNumber}`);
@@ -409,7 +409,7 @@ globalThis.io.on('connection', (socket) => {
     });
 });
 
-server.listen(3000,'0.0.0.0', () => {
+server.listen(3000, '0.0.0.0', () => {
     console.log('server running at http://0.0.0.0:3000');
 });
 startBot()

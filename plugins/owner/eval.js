@@ -17,7 +17,6 @@ export default async ({ sock, m, id, noTel, psn }) => {
             id,
             noTel,
             psn,
-            require,
             console: {
                 ...console,
                 log: (...args) => {
