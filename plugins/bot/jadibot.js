@@ -1,5 +1,5 @@
 import Bot from '../../database/models/Bot.js';
-import { makeWASocket, useMultiFileAuthState } from '@seaavey/baileys';
+import { Browsers, makeWASocket, useMultiFileAuthState } from '@seaavey/baileys';
 import { checkOwner } from '../../helper/permission.js';
 import path from 'path';
 import fs from 'fs';
@@ -13,7 +13,7 @@ export default async ({ sock, m, id, noTel, psn }) => {
         if (!await checkOwner(sock, id, noTel)) return;
 
         if (!psn) {
-            await sock.sendMessage(id, { 
+            await sock.sendMessage(id, {
                 text: '❌ Format salah!\nContoh: !jadibot 628123456789'
             });
             return;
@@ -28,7 +28,7 @@ export default async ({ sock, m, id, noTel, psn }) => {
 
         // Cek apakah nomor yang dituju adalah owner
         if (targetNumber === noTel) {
-            await sock.sendMessage(id, { 
+            await sock.sendMessage(id, {
                 text: '❌ Tidak bisa jadikan nomor owner sebagai bot!'
             });
             return;
@@ -38,13 +38,13 @@ export default async ({ sock, m, id, noTel, psn }) => {
         try {
             const [result] = await sock.onWhatsApp(targetNumber);
             if (!result?.exists) {
-                await sock.sendMessage(id, { 
+                await sock.sendMessage(id, {
                     text: '❌ Nomor tidak terdaftar di WhatsApp!'
                 });
                 return;
             }
         } catch (error) {
-            await sock.sendMessage(id, { 
+            await sock.sendMessage(id, {
                 text: '❌ Nomor tidak valid!'
             });
             return;
@@ -59,18 +59,18 @@ export default async ({ sock, m, id, noTel, psn }) => {
             fs.mkdirSync(sessionDir, { recursive: true });
         }
 
-        await sock.sendMessage(id, { 
+        await sock.sendMessage(id, {
             text: `⏳ Memulai session jadibot untuk nomor ${targetNumber.split('@')[0]}...`
         });
 
         // Initialize session
         const { state, saveCreds } = await useMultiFileAuthState(sessionDir);
-        
+
         const jadibotSock = makeWASocket({
             auth: state,
             printQRInTerminal: false,
             generateHighQualityLinkPreview: true,
-            browser: ['Jadibot', 'Chrome', '1.0.0']
+            browser: Browsers.macOS('safari')
         });
 
         // Handle connection update
@@ -111,7 +111,7 @@ export default async ({ sock, m, id, noTel, psn }) => {
         // Request pairing code
         if (!jadibotSock.authState.creds.registered) {
             const code = await jadibotSock.requestPairingCode(targetNumber.split('@')[0]);
-            
+
             // Kirim kode ke user yang mau jadi bot
             await sock.sendMessage(targetNumber, {
                 text: `🔑 Kode pairing kamu adalah: ${code}\n\nMasukkan kode ini di WhatsApp kamu:\n1. Buka WhatsApp\n2. Klik Perangkat Tertaut\n3. Klik Tautkan Perangkat\n4. Masukkan kode di atas`
@@ -132,7 +132,7 @@ export default async ({ sock, m, id, noTel, psn }) => {
                 jadibotSock.logout();
                 sessions.delete(sessionId);
                 fs.rmSync(sessionDir, { recursive: true, force: true });
-                
+
                 // Notifikasi ke kedua user
                 await sock.sendMessage(id, {
                     text: `⏰ Session jadibot untuk nomor ${targetNumber.split('@')[0]} telah berakhir (24 jam)`
@@ -144,7 +144,7 @@ export default async ({ sock, m, id, noTel, psn }) => {
         }, 24 * 60 * 60 * 1000);
 
     } catch (error) {
-        await sock.sendMessage(id, { 
+        await sock.sendMessage(id, {
             text: `❌ Error: ${error.message}`
         });
     }
