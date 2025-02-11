@@ -9,15 +9,15 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
         return;
     }
     try {
-        await sock.sendMessage(id, { text: '🔄 *Processing...* Mohon tunggu sebentar...' });
+        sock.sendMessage(id, { react: { text: '⏱️', key: m.key } })
         let result = await meta(psn);
         if (Array.isArray(result)) {
             result.forEach(async (res) => {
-                await sock.sendMessage(id, { video: { url: res.url }, caption: '🎥 *Video berhasil diunduh!*' });
+                await sock.sendMessage(id, { video: { url: res.videoLink }, caption: '🎥 *Video berhasil diunduh!*' });
             });
             return;
         } else {
-            await sock.sendMessage(id, { video: { url: result.url }, caption: '🎥 *Video berhasil diunduh!*' });
+            await sock.sendMessage(id, { video: { url: result.videoLink }, caption: '🎥 *Video berhasil diunduh!*' });
         }
 
     } catch (error) {
