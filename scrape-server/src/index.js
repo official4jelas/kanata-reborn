@@ -15,6 +15,7 @@ import { memberJkt, detailMember } from './jkt48.js';
 import { getMp3Murotal } from './murrotal-mp3.js';
 import { tiktokDl } from './tiktok.js';
 import { surahNames } from '../helper/surahname.js';
+import { igDl } from './igdl.js';
 
 export {
     ytShorts,
@@ -29,4 +30,5 @@ export {
     getMp3Murotal,
     tiktokDl,
     surahNames,
+    igDl
 };

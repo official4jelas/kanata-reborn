@@ -12,7 +12,8 @@ import {
     detailMember,
     getMp3Murotal,
     surahNames,
-    tiktokDl
+    tiktokDl,
+    igDl
 } from './src/index.js';
 
 const app = express();
@@ -195,6 +196,19 @@ app.get('/', (req, res) => {
                     </ul>
                 </div>
             </div>
+
+            <h2>Instagram Downloader</h2>
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="path">/api/ig?url={url}</span>
+                <p>Download Video dan Gambar dari Instagram</p>
+                <div class="params">
+                    <p><b>Parameter:</b></p>
+                    <ul>
+                        <li>url (required) - URL Instagram</li>
+                    </ul>
+                </div>
+            </div>
         </body>
         </html>
     `);
@@ -240,6 +254,25 @@ app.get('/api/tiktok', async (req, res) => {
         }
 
         const result = await tiktokDl(url);
+        res.json({
+            status: true,
+            result
+        });
+    } catch (error) {
+        handleError(res, error);
+    }
+});
+app.get('/api/ig', async (req, res) => {
+    try {
+        const { url } = req.query;
+        if (!url) {
+            return res.status(400).json({
+                status: false,
+                message: 'URL parameter diperlukan'
+            });
+        }
+
+        const result = await igDl(url);
         res.json({
             status: true,
             result
