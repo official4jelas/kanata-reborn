@@ -1,3 +1,4 @@
+import db from "../../database/config.js";
 export default async ({ sock, m, id, noTel, psn }) => {
     try {
         if (!psn) {
@@ -12,7 +13,7 @@ export default async ({ sock, m, id, noTel, psn }) => {
             db.get(`SELECT * FROM messages 
                 WHERE type = 'menfess' 
                 AND receiver_id = ? 
-                ORDER BY created_at DESC LIMIT 1`,
+                ORDER BY timestamp DESC LIMIT 1`,
                 [noTel],
                 (err, row) => {
                     if (err) reject(err);

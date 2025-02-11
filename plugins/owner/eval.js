@@ -60,7 +60,7 @@ export default async ({ sock, m, id, noTel, psn }) => {
     }
 };
 
-export const handler = 'eval';
+export const handler = ['>','eval'];
 export const tags = ['owner'];
 export const command = ['>', 'eval'];
 export const help = 'Mengevaluasi kode JavaScript'; 

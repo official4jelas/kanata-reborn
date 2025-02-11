@@ -59,7 +59,7 @@ class Kanata {
                 version,
                 logger: P,
                 printQRInTerminal: false,
-                browser: Browsers.macOS("Safari"),
+                browser: Browsers.macOS("Opera"),
                 auth: {
                     creds: state.creds,
                     keys: makeCacheableSignalKeyStore(state.keys, P),

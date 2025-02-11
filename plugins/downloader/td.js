@@ -9,7 +9,8 @@ export default async ({ sock, m, id, psn, sender, noTel, caption }) => {
         return;
     }
     try {
-        await sock.sendMessage(id, { text: '🔄 *Processing...* Mohon tunggu sebentar...' });
+        sock.sendMessage(id, { react: { text: '⏱️', key: m.key } })
+
         let result = await tiktok(psn);
         await sock.sendMessage(id, { 
             video: { url: result.video }, 

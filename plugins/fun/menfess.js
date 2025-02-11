@@ -1,10 +1,11 @@
 import { formatPhoneNumber } from '../../helper/formatter.js';
+import db from '../../database/config.js';
 
 export default async ({ sock, m, id, noTel, psn }) => {
     try {
         if (!psn) {
-            await sock.sendMessage(id, { 
-                text: `❌ Format salah!\n\nCara penggunaan:\n!menfess 628xxx|pesan\n\nContoh:\n!menfess 6281234567890|Hai, kamu cantik deh` 
+            await sock.sendMessage(id, {
+                text: `❌ Format salah!\n\nCara penggunaan:\n!menfess 628xxx|pesan\n\nContoh:\n!menfess 6281234567890|Hai, kamu cantik deh`
             });
             return;
         }
@@ -14,42 +15,42 @@ export default async ({ sock, m, id, noTel, psn }) => {
 
         // Validasi nomor tujuan
         if (!targetNumber || !message) {
-            await sock.sendMessage(id, { 
-                text: '❌ Format salah! Masukkan nomor tujuan dan pesan.' 
+            await sock.sendMessage(id, {
+                text: '❌ Format salah! Masukkan nomor tujuan dan pesan.'
             });
             return;
         }
 
         // Format nomor telepon
         const formattedNumber = formatPhoneNumber(targetNumber);
-        
+
         // Cek apakah nomor valid
         if (!formattedNumber) {
-            await sock.sendMessage(id, { 
-                text: '❌ Nomor tidak valid!' 
+            await sock.sendMessage(id, {
+                text: '❌ Nomor tidak valid!'
             });
             return;
         }
 
         // Cek apakah mengirim ke diri sendiri
         if (formattedNumber === noTel) {
-            await sock.sendMessage(id, { 
-                text: '❌ Tidak bisa mengirim menfess ke diri sendiri!' 
+            await sock.sendMessage(id, {
+                text: '❌ Tidak bisa mengirim menfess ke diri sendiri!'
             });
             return;
         }
 
         // Kirim pesan ke target
         const targetId = `${formattedNumber}@s.whatsapp.net`;
-        await sock.sendMessage(targetId, { 
-            text: `*💌 MENFESS*\n\nAda pesan rahasia buat kamu nih:\n\n"${message}"\n\n_Balas dengan !balas <pesan> untuk membalas pesan ini_` 
+        await sock.sendMessage(targetId, {
+            text: `*💌 MENFESS*\n\nAda pesan rahasia buat kamu nih:\n\n"${message}"\n\n_Balas dengan !balas <pesan> untuk membalas pesan ini_`
         });
 
         // Simpan pesan ke database
         await new Promise((resolve, reject) => {
-            db.run(`INSERT INTO messages (type, sender_id, receiver_id, message) 
-                VALUES (?, ?, ?, ?)`,
-                ['menfess', noTel, formattedNumber, message],
+            db.run(`INSERT INTO messages (type, sender_id, receiver_id, message,is_anonymous) 
+                VALUES (?, ?, ?, ?,?)`,
+                ['menfess', noTel, formattedNumber, message, 0],
                 (err) => {
                     if (err) reject(err);
                     resolve();
@@ -58,13 +59,13 @@ export default async ({ sock, m, id, noTel, psn }) => {
         });
 
         // Konfirmasi ke pengirim
-        await sock.sendMessage(id, { 
-            text: '✅ Menfess berhasil dikirim!' 
+        await sock.sendMessage(id, {
+            text: '✅ Menfess berhasil dikirim!'
         });
 
     } catch (error) {
-        await sock.sendMessage(id, { 
-            text: `❌ Error: ${error.message}` 
+        await sock.sendMessage(id, {
+            text: `❌ Error: ${error.message}`
         });
     }
 };

@@ -13,7 +13,7 @@ export default async ({ sock, m, id, noTel, psn }) => {
         // Parse URL dan headers (jika ada)
         let [url, ...headerStrings] = psn.split('\n');
         let headers = {};
-        
+
         // Parse headers jika ada
         if (headerStrings.length > 0) {
             headerStrings.forEach(header => {
@@ -27,12 +27,12 @@ export default async ({ sock, m, id, noTel, psn }) => {
 
         // Lakukan request
         const response = await axios.get(url, { headers });
-        
+
         // Format response
         let result = `🌐 *GET ${url}*\n\n`;
         result += `📊 Status: ${response.status}\n`;
         result += `⏱️ Time: ${response.headers['x-response-time'] || 'N/A'}\n\n`;
-        
+
         // Format response data
         if (typeof response.data === 'object') {
             result += `📥 Response:\n${JSON.stringify(response.data, null, 2)}`;
@@ -41,14 +41,14 @@ export default async ({ sock, m, id, noTel, psn }) => {
         }
 
         // Split response jika terlalu panjang
-        if (result.length > 4096) {
-            const chunks = result.match(/.{1,4096}/g);
-            for (const chunk of chunks) {
-                await sock.sendMessage(id, { text: chunk });
-            }
-        } else {
-            await sock.sendMessage(id, { text: result });
-        }
+        // if (result.length > 4096) {
+        //     const chunks = result.match(/.{1,4096}/g);
+        //     for (const chunk of chunks) {
+        //         await sock.sendMessage(id, { text: chunk });
+        //     }
+        // } else {
+        await sock.sendMessage(id, { text: result });
+        // }
     } catch (error) {
         let errorMessage = `❌ *ERROR*\n\n`;
         if (error.response) {

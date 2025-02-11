@@ -10,11 +10,11 @@ export default async ({ sock, m, id, psn, sender, noTel, caption, attf }) => {
     try {
       // Pesan sukses upload gambar
       const imageUrl = await uploadGambar2(attf);
-      const { data } = await axios.get('https://fastrestapis.fasturl.cloud/aillm/gpt-4o', {
+      const { data } = await axios.get('https://fastrestapis.fasturl.cloud/aillm/gpt-4o-turbo', {
         params: {
           ask: psn,
           imageUrl,
-          style: 'Selalu balas percakapan user dalam bahasa indonesia',
+          style: 'Kamu adalah AI spesialis analisis gambar yang mampu mengenali dan menjelaskan objek, teks, dan kode yang ada di dalam gambar. Jika ada teks, kamu akan mengekstraknya secara akurat. Jika ada kode pemrograman, kamu akan mengidentifikasinya, menjelaskan fungsinya, dan memastikan bisa dieksekusi jika memungkinkan. Penjelasanmu jelas, detail, dan to the point.',
           sessionId: id
 
         }

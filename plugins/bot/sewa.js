@@ -31,11 +31,11 @@ export default async ({ sock, m, id, noTel, psn }) => {
         text += `Durasi: ${rental.plan.duration_days} hari\n`;
         text += `Expired: ${rental.endDate}\n\n`;
         text += 'Silakan lakukan pembayaran ke:\n';
-        text += 'DANA: 081234567890\n';
-        text += 'OVO: 081234567890\n';
-        text += 'GOPAY: 081234567890\n\n';
+        text += 'DANA: 0895395590009\n';
+        text += 'LinkAja: 0895395590009\n';
+        text += 'GOPAY: 0895395590009\n\n';
         text += 'Setelah membayar, kirim bukti pembayaran\n';
-        text += 'ke owner: @owner';
+        text += 'ke owner: @Roy';
 
         await sock.sendMessage(id, { text });
     } catch (error) {

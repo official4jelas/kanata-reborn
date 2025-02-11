@@ -37,6 +37,16 @@ function initializeTables() {
                 join_date DATETIME DEFAULT CURRENT_TIMESTAMP,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )`);
+            // tabel menfess
+            db.run(`CREATE TABLE IF NOT EXISTS messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                type TEXT NOT NULL,
+                sender_id TEXT NOT NULL,
+                receiver_id TEXT DEFAULT 0,
+                message TEXT NOT NULL,
+                is_anonymous INTEGER DEFAULT 0,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`);
 
             // Tabel plugins
             db.run(`CREATE TABLE IF NOT EXISTS plugins (
