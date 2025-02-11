@@ -35,10 +35,10 @@ export const uploadGambar2 = async (buffer) => {
         const headers = {
             ...form.getHeaders()
         };
-        const response = await axios.post('https://cdn.roidev.my.id/upload', form, {
+        const { data } = await axios.post('https://fastrestapis.fasturl.cloud/downup/uploader-v2', form, {
             headers
         })
-        return response.data.message
+        return data.result
     } catch (error) {
         throw error
     }

@@ -1,3 +1,4 @@
+import { checkOwner } from '../../helper/permission.js';
 import { formatDate, formatFileSize } from '../../helper/formatter.js';
 import { createReadStream, createWriteStream } from 'fs';
 import { zip } from 'zip-a-folder';

@@ -1,3 +1,4 @@
+import { checkOwner } from '../../helper/permission.js';
 import { formatDate, formatFileSize } from '../../helper/formatter.js';
 import { createReadStream } from 'fs';
 import { zip } from 'zip-a-folder';
@@ -17,22 +18,26 @@ export default async ({ sock, m, id, noTel }) => {
 
         // Generate nama file backup
         const date = new Date();
+        // console.log(formatDate(date).replace(/ /g, '_'))
+        // return 
         const timestamp = formatDate(date).replace(/ /g, '_');
         const scBackupPath = path.join(backupDir, `sc_backup_${timestamp}.zip`);
 
         // List folder dan file yang akan dibackup
         const foldersToBackup = [
+            'assets',
             'database',
             'helper',
+            'lib',
             'plugins',
-            'views'
+            'public'
         ];
 
         const filesToBackup = [
             'package.json',
-            'main.js',
             'app.js',
-            'config.js'
+            'global.js',
+            'index.html',
         ];
 
         // Buat temporary folder
@@ -95,8 +100,9 @@ export default async ({ sock, m, id, noTel }) => {
 
     } catch (error) {
         await sock.sendMessage(id, {
-            text: `❌ Error: ${error.message}`
+            text: `❌ Error: ${error.stack}`
         });
+        throw error
     }
 };
 
