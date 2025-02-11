@@ -7,12 +7,7 @@ import fs from 'fs';
 export default async ({ sock, m, id, noTel }) => {
     try {
         // Cek apakah user adalah owner
-        if (!global.owner.includes(noTel)) {
-            await sock.sendMessage(id, { 
-                text: '❌ Command ini hanya untuk owner!' 
-            });
-            return;
-        }
+        if (!await checkOwner(sock, id, noTel)) return;
 
         // Buat folder backup jika belum ada
         const backupDir = './backups';
@@ -89,18 +84,18 @@ export default async ({ sock, m, id, noTel }) => {
             fileName: path.basename(scBackupPath),
             mimetype: 'application/zip',
             caption: `*📦 SOURCE CODE BACKUP*\n\n` +
-                    `📅 Tanggal: ${formatDate(date)}\n` +
-                    `📊 Ukuran: ${fileSize}\n\n` +
-                    `📁 Folders: ${foldersToBackup.join(', ')}\n` +
-                    `📄 Files: ${filesToBackup.join(', ')}`
+                `📅 Tanggal: ${formatDate(date)}\n` +
+                `📊 Ukuran: ${fileSize}\n\n` +
+                `📁 Folders: ${foldersToBackup.join(', ')}\n` +
+                `📄 Files: ${filesToBackup.join(', ')}`
         });
 
         // Hapus file backup setelah dikirim
         fs.unlinkSync(scBackupPath);
 
     } catch (error) {
-        await sock.sendMessage(id, { 
-            text: `❌ Error: ${error.message}` 
+        await sock.sendMessage(id, {
+            text: `❌ Error: ${error.message}`
         });
     }
 };

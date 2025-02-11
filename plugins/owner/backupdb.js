@@ -6,13 +6,7 @@ import fs from 'fs';
 
 export default async ({ sock, m, id, noTel }) => {
     try {
-        // Cek apakah user adalah owner
-        if (!global.owner.includes(noTel)) {
-            await sock.sendMessage(id, { 
-                text: '❌ Command ini hanya untuk owner!' 
-            });
-            return;
-        }
+        if (!await checkOwner(sock, id, noTel)) return;
 
         // Buat folder backup jika belum ada
         const backupDir = './backups';
