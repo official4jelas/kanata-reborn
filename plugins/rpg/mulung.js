@@ -1,13 +1,19 @@
 import RPG from '../../database/models/RPG.js';
 
+export const description = "Mencari barang bekas untuk dijual";
+export const handler = "mulung";
+
 export default async ({ sock, m, id, noTel }) => {
     try {
         await RPG.initPlayer(noTel);
         const result = await RPG.scavenge(noTel);
         
         let text = `*🔍 HASIL MULUNG*\n\n`;
-        text += `💰 Gold: +${result.goldEarned}\n`;
-        text += `✨ EXP: +${result.expEarned}\n`;
+        text += `Kamu menemukan:\n`;
+        result.items.forEach(item => {
+            text += `📦 ${item.name} x${item.quantity}\n`;
+        });
+        text += `\n💰 Total nilai: ${result.totalValue} gold\n`;
         text += `⚡ Energi: -${result.energyLost}\n`;
         
         if (result.levelUp) {
@@ -18,6 +24,4 @@ export default async ({ sock, m, id, noTel }) => {
     } catch (error) {
         await sock.sendMessage(id, { text: `Error: ${error.message}` });
     }
-};
-
-export const handler = 'mulung'; 
+}; 
