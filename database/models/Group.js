@@ -6,12 +6,14 @@ class Group {
             db.run(`INSERT OR IGNORE INTO group_settings (
                 group_id, 
                 welcome_message, 
-                goodbye_message
-            ) VALUES (?, ?, ?)`,
+                goodbye_message,
+                autoai
+            ) VALUES (?, ?, ?, ?)`,
             [
                 groupId,
                 'Selamat datang @user di @group!\n\nSilakan baca deskripsi grup ya~',
-                'Selamat tinggal @user!\nSemoga kita berjumpa lagi di lain waktu.'
+                'Selamat tinggal @user!\nSemoga kita berjumpa lagi di lain waktu.',
+                false
             ],
             (err) => {
                 if (err) reject(err);

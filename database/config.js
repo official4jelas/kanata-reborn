@@ -4,11 +4,12 @@ import pkg from 'sqlite3';
 const { open } = pkg;
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = dirname(__filename);
 
-const dbPath = path.join(__dirname, 'kanata.db');
+const dbPath = join(__dirname, 'kanata.db');
 
 // Buat koneksi database
 const db = new sqlite3.Database(dbPath, (err) => {
@@ -146,15 +147,35 @@ function initializeTables() {
             // Tabel untuk pengaturan grup
             db.run(`CREATE TABLE IF NOT EXISTS group_settings (
                 group_id TEXT PRIMARY KEY,
+                welcome BOOLEAN DEFAULT false,
+                goodbye BOOLEAN DEFAULT false,
                 antilink BOOLEAN DEFAULT false,
-                welcome BOOLEAN DEFAULT true,
-                goodbye BOOLEAN DEFAULT true,
                 antispam BOOLEAN DEFAULT false,
                 antitoxic BOOLEAN DEFAULT false,
                 only_admin BOOLEAN DEFAULT false,
                 welcome_message TEXT,
-                goodbye_message TEXT
+                goodbye_message TEXT,
+                autoai BOOLEAN DEFAULT false
             )`);
+
+            // Cek apakah kolom autoai sudah ada
+            db.all("PRAGMA table_info(group_settings)", (err, rows) => {
+                if (err) {
+                    console.error('Error checking columns:', err);
+                    return;
+                }
+                
+                // Jika kolom autoai belum ada, tambahkan
+                if (!rows.some(row => row.name === 'autoai')) {
+                    db.run("ALTER TABLE group_settings ADD COLUMN autoai BOOLEAN DEFAULT false", (err) => {
+                        if (err) {
+                            console.error('Error adding autoai column:', err);
+                        } else {
+                            console.log('Added autoai column successfully');
+                        }
+                    });
+                }
+            });
 
             // Tabel untuk spam detection
             db.run(`CREATE TABLE IF NOT EXISTS spam_detection (
