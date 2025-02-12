@@ -1,8 +1,8 @@
+import './global.js'
 import { createServer } from 'node:http'
 import express from 'express'
 import { dirname, join } from 'node:path'
 import { Server } from 'socket.io'
-import './global.js'
 import { Kanata, clearMessages } from './helper/bot.js';
 import { groupParticipants, groupUpdate } from './lib/group.js';
 import { checkAnswer, tebakSession } from './lib/tebak/index.js';
@@ -351,6 +351,9 @@ export async function startBot() {
                 // auto AI mention
                 if (botMentioned) {
                     try {
+                        if(!(await Group.getSettings(id)).autoai == 1) {
+                            return 
+                        }
                         await sock.sendMessage(id, { text: await gpt4Hika({ prompt: `${fullmessage}  ${ctx}`, id }) })
                     } catch (error) {
                         await sock.sendMessage(id, { text: 'ups,ada yang salah' })
