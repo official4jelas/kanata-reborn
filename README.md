@@ -32,35 +32,47 @@ To use this project, you will need to set up a Various API key. You can do this 
 ```javascript
 // variabel dasar
 globalThis.owner = "Roynaldi";
-globalThis.botName = "Sonata Bot";
-globalThis.ownerNumber = ""
+globalThis.ownerNumber = ["62895395590009","62"]
 globalThis.botNumber = ""
+globalThis.botName = "Kanata"
 globalThis.sessionName = 'kanata-bot'
+globalThis.groupJid = '0@g.us'
+globalThis.communityId = '0@g.us'
+globalThis.newsLetterJid = '0@newsletter'
+globalThis.newsLetterUrl = 'https://whatsapp.com/channel/0029VagADOLLSmbaxFNswH1m'
+globalThis.kanataThumb = 'https://telegra.ph/file/8360caca1efd0f697d122.jpg'
+
 
 // fungsi dasar
-globalThis.isOwner = (id) => {
-    return id === globalThis.ownerNumber
+globalThis.isOwner = (notel) => {
+    return globalThis.ownerNumber.includes(notel)
 }
-globalThis.isBot = async (id) => {
-    return id === botNumber
+
+globalThis.isBot = async (notel) => {
+    return notel === botNumber
+}
+
+globalThis.isGroup = async (jid) => {
+    return jid.endsWith('@g.us')
 }
 
 // variabel apikey
 globalThis.apiKey = {
     gemini: '',
-    gpt: '',
-    mistral: '',
     removeBG: '',
+    llama: '',
     groq: '',
     pdf: {
         secret: '',
         public: ''
     }
 }
+globalThis.hikaru = 'https://fastrestapis.fasturl.cloud/'
 
 // variabel paired apikey with baseurl
 globalThis.apiHelper = {
     medanpedia: {
+        baseurl: 'https://api.medanpedia.co.id/',
         apiId: '',
         apiKey: ''
     },
@@ -69,6 +81,27 @@ globalThis.apiHelper = {
         apikey: '',
 
         baseUrl: 'https://api.lolhuman.xyz/api/'
+
+    },
+    neoxr: {
+
+        apikey: '',
+
+        baseUrl: 'https://api.neoxr.eu/api/'
+
+    },
+    ryzen: {
+
+        apikey: '',
+
+        baseUrl: 'https://api.ryzendesu.vip/api/'
+
+    },
+    fastapi: {
+
+        apikey: '',
+
+        baseUrl: 'https://fastrestapis.fasturl.cloud/'
 
     },
 
@@ -84,12 +117,12 @@ globalThis.apiHelper = {
 
         apikey: '',
 
-        baseUrl: 'https://skizo.tech/api/'
+        baseUrl: 'https://skizoasia.xyz/api/'
 
     },
     nyxs: {
         apikey: '',
-        baseUrl: 'https://api.nyxs.pw/api/'
+        baseUrl: 'https://api.nyxs.pw/'
     }
 
 }

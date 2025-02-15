@@ -246,7 +246,7 @@ async function prosesPerintah({ command, sock, m, id, sender, noTel, attf }) {
                 }
             }
         } else {
-            if (m.key.fromMe) return;
+            // if (m.key.fromMe) return;
         }
 
         // Cek dan buat user jika belum ada (untuk grup dan pribadi)

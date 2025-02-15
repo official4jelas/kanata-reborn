@@ -72,18 +72,20 @@ export default async ({ sock, id, m, noTel, sender }) => {
             }
         },
     }, {
-        quoted: {
-            key: {
-                remoteJid: 'status@broadcast',
-                participant: '0@s.whatsapp.net'
-            },
-            message: {
-                newsletterAdminInviteMessage: {
-                    newsletterJid: '120363293401077915@newsletter',
-                    newsletterName: 'Roidev',
-                    caption: 'Kanata'
-                }
-            }
-        }
+        quoted: m
     })
 }
+
+// {
+//     key: {
+//         remoteJid: 'status@broadcast',
+//         participant: '0@s.whatsapp.net'
+//     },
+//     message: {
+//         newsletterAdminInviteMessage: {
+//             newsletterJid: '120363293401077915@newsletter',
+//             newsletterName: 'Roidev',
+//             caption: 'Kanata'
+//         }
+//     }
+// }
