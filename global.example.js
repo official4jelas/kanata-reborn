@@ -1,6 +1,6 @@
 // variabel dasar
 globalThis.owner = "Roynaldi";
-globalThis.ownerNumber = ["62895395590009","62"]
+globalThis.ownerNumber = ["6283143872365","6282178591753"]
 globalThis.botNumber = ""
 globalThis.botName = "Kanata"
 globalThis.sessionName = 'kanata-bot'
